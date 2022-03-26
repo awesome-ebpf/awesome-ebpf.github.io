@@ -1,0 +1,745 @@
+<!doctype html><html lang=en>
+<head>
+<meta charset=utf-8>
+<meta http-equiv=x-ua-compatible content="IE=edge,chrome=1">
+<title>Awesome eBPF - eBPF - the Super Power for Kernel</title>
+<meta name=renderer content="webkit">
+<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta http-equiv=cache-control content="no-transform">
+<meta http-equiv=cache-control content="no-siteapp">
+<meta name=theme-color content="#f8f5ec">
+<meta name=msapplication-navbutton-color content="#f8f5ec">
+<meta name=apple-mobile-web-app-capable content="yes">
+<meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2806255399860723" crossorigin=anonymous></script>
+<meta name=author content="Dave"><meta name=description content="BPF, as in _Berkeley Packet Filter_, is an in-kernel virtual machine running programs passed from user space. Initially implemented on BSD, then Linux, the (now legacy) classic BPF or cBPF machine would be used with tools like tcpdump for filtering packets in the kernel to avoid useless copies to user space. "><meta name=keywords content="ebpf,cilium,xdp">
+<meta name=generator content="Hugo 0.86.1 with theme even">
+<link rel=canonical href=http://localhost:1313/post/awesome-ebpf/>
+<link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
+<link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>
+<link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png>
+<link rel=manifest href=/manifest.json>
+<link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5>
+<link href=/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css rel=stylesheet>
+<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous>
+<meta property="og:title" content="Awesome eBPF">
+<meta property="og:description" content="BPF, as in _Berkeley Packet Filter_, is an in-kernel virtual machine running programs passed from user space. Initially implemented on BSD, then Linux, the (now legacy) classic BPF or cBPF machine would be used with tools like tcpdump for filtering packets in the kernel to avoid useless copies to user space. ">
+<meta property="og:type" content="article">
+<meta property="og:url" content="http://localhost:1313/post/awesome-ebpf/"><meta property="article:section" content="post">
+<meta property="article:published_time" content="2022-03-26T11:17:01+08:00">
+<meta property="article:modified_time" content="2022-03-26T11:17:01+08:00">
+<meta itemprop=name content="Awesome eBPF">
+<meta itemprop=description content="BPF, as in _Berkeley Packet Filter_, is an in-kernel virtual machine running programs passed from user space. Initially implemented on BSD, then Linux, the (now legacy) classic BPF or cBPF machine would be used with tools like tcpdump for filtering packets in the kernel to avoid useless copies to user space. "><meta itemprop=datePublished content="2022-03-26T11:17:01+08:00">
+<meta itemprop=dateModified content="2022-03-26T11:17:01+08:00">
+<meta itemprop=wordCount content="4151">
+<meta itemprop=keywords content="ebpf,beginner,"><meta name=twitter:card content="summary">
+<meta name=twitter:title content="Awesome eBPF">
+<meta name=twitter:description content="BPF, as in _Berkeley Packet Filter_, is an in-kernel virtual machine running programs passed from user space. Initially implemented on BSD, then Linux, the (now legacy) classic BPF or cBPF machine would be used with tools like tcpdump for filtering packets in the kernel to avoid useless copies to user space. "><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script>
+<script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]-->
+</head>
+<body>
+<div id=mobile-navbar class=mobile-navbar>
+<div class=mobile-header-logo>
+<a href=/ class=logo>eBPF Pearls</a>
+</div>
+<div class=mobile-navbar-icon>
+<span></span>
+<span></span>
+<span></span>
+</div>
+</div>
+<nav id=mobile-menu class="mobile-menu slideout-menu">
+<ul class=mobile-menu-list>
+<a href=/>
+<li class=mobile-menu-item>Home</li>
+</a><a href=/post/>
+<li class=mobile-menu-item>Archives</li>
+</a><a href=/tags/>
+<li class=mobile-menu-item>Tags</li>
+</a><a href=/categories/>
+<li class=mobile-menu-item>Categories</li>
+</a>
+</ul>
+</nav>
+<div class=container id=mobile-panel>
+<header id=header class=header>
+<div class=logo-wrapper>
+<a href=/ class=logo>eBPF Pearls</a>
+</div>
+<nav class=site-navbar>
+<ul id=menu class=menu>
+<li class=menu-item>
+<a class=menu-item-link href=/>Home</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/post/>Archives</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/tags/>Tags</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/categories/>Categories</a>
+</li>
+</ul>
+</nav>
+</header>
+<main id=main class=main>
+<div class=content-wrapper>
+<div id=content class=content>
+<article class=post>
+<header class=post-header>
+<h1 class=post-title>Awesome eBPF</h1>
+<div class=post-meta>
+<span class=post-time> 2022-03-26 </span>
+<div class=post-category>
+<a href=/categories/ebpf/> ebpf </a>
+<a href=/categories/overview/> overview </a>
+</div>
+<span class=more-meta> 4151 words </span>
+<span class=more-meta> 20 mins read </span>
+</div>
+</header>
+<div class=post-toc id=post-toc>
+<h2 class=post-toc-title>Contents</h2>
+<div class=post-toc-content>
+<nav id=TableOfContents>
+<ul>
+<li>
+<ul>
+<li><a href=#1-contents>1. Contents</a></li>
+<li><a href=#2-reference-documentation>2. Reference Documentation</a>
+<ul>
+<li><a href=#ebpf-essentials>eBPF Essentials</a></li>
+<li><a href=#kernel-documentation>Kernel Documentation</a></li>
+<li><a href=#manual-pages>Manual Pages</a></li>
+<li><a href=#other>Other</a></li>
+</ul>
+</li>
+<li><a href=#3-articles-and-presentations>3. Articles and Presentations</a>
+<ul>
+<li><a href=#generic-ebpf-presentations-and-articles>Generic eBPF Presentations and Articles</a></li>
+<li><a href=#bpf-internals>BPF Internals</a></li>
+<li><a href=#kernel-tracing>Kernel Tracing</a></li>
+<li><a href=#xdp>XDP</a></li>
+<li><a href=#af_xdp>AF_XDP</a></li>
+<li><a href=#bpfilter>bpfilter</a></li>
+<li><a href=#btf>BTF</a></li>
+<li><a href=#cbpf>cBPF</a></li>
+<li><a href=#hardware-offload>Hardware Offload</a></li>
+</ul>
+</li>
+<li><a href=#4-tutorials>4. Tutorials</a></li>
+<li><a href=#5-examples>5. Examples</a></li>
+<li><a href=#6-ebpf-workflow-tools-and-utilities>6. eBPF Workflow: Tools and Utilities</a>
+<ul>
+<li><a href=#bcc>bcc</a></li>
+<li><a href=#iproute2>iproute2</a></li>
+<li><a href=#llvm>LLVM</a></li>
+<li><a href=#libbpf>libbpf</a></li>
+<li><a href=#aya>Aya</a></li>
+<li><a href=#oxidebpf>oxidebpf</a></li>
+<li><a href=#bpftool-and-other-tools-from-the-kernel-tree>bpftool and Other Tools from the Kernel Tree</a></li>
+<li><a href=#user-space-ebpf>User Space eBPF</a></li>
+<li><a href=#testing-in-virtual-environments>Testing in Virtual Environments</a></li>
+</ul>
+</li>
+<li><a href=#7-projects-related-to-ebpf>7. Projects Related to eBPF</a></li>
+<li><a href=#8-ebpf-in-security>8. eBPF in Security</a></li>
+<li><a href=#9-the-code>9. The Code</a></li>
+<li><a href=#10-development-and-community>10. Development and Community</a></li>
+<li><a href=#11-other-lists-of-resources-on-ebpf>11. Other Lists of Resources on eBPF</a></li>
+<li><a href=#12-acknowledgement>12. Acknowledgement</a></li>
+<li><a href=#13-contributing>13. Contributing</a></li>
+</ul>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+<div class=post-content>
+<p>Addr：<a href=https://ebpf.xyz/post/awesome-ebpf>https://ebpf.xyz/post/awesome-ebpf</a></p>
+<blockquote>
+<p>A curated list of awesome projects related to eBPF.</p>
+</blockquote>
+<p>BPF, as in <em>Berkeley Packet Filter</em>, is an in-kernel virtual machine running programs passed from user space. Initially implemented on BSD, then Linux, the (now legacy) &ldquo;classic BPF&rdquo; or cBPF machine would be used with tools like tcpdump for filtering packets in the kernel to avoid useless copies to user space. More recently, the BPF infrastructure in Linux has been completely reworked and gave life to the &ldquo;extended BPF&rdquo;, or eBPF, which gained new features (safety and termination checks, JIT-compiling for programs, persistent maps, a standard library, hardware offload support, etc.) and is now used for many tasks. Processing packets at a very low level (XDP), tracing and monitoring events on the system, or enforcing access control over cgroups are but a few examples to which eBPF brings performance, programmability and flexibility.</p>
+<p>Recently <a href=https://cilium.io>Cilium</a> launched a great website about eBPF called <a href=https://ebpf.io/>ebpf.io</a>. It serves a similar purpose to this list, with <a href=https://ebpf.io/what-is-ebpf>an introduction to eBPF</a> and links to <a href=https://ebpf.io/projects>related projects</a>.</p>
+<blockquote>
+<p>Note: eBPF is an exciting piece of technology, and its ecosystem is constantly evolving. We&rsquo;d love help from <em>you</em> to keep this awesome list up to date, and improve its signal-to-noise ratio in anyway we can. Please feel free to leave <a href=https://github.com/zoidbergwill/awesome-ebpf/issues>any feedback</a>.</p>
+</blockquote>
+<h2 id=1-contents>1. Contents</h2>
+<ul>
+<li><a href=#reference-documentation>Reference Documentation</a></li>
+<li><a href=#articles-and-presentations>Articles and Presentations</a></li>
+<li><a href=#tutorials>Tutorials</a></li>
+<li><a href=#examples>Examples</a></li>
+<li><a href=#ebpf-workflow-tools-and-utilities>eBPF Workflow: Tools and Utilities</a></li>
+<li><a href=#projects-related-to-ebpf>Projects Related to eBPF</a></li>
+<li><a href=#ebpf-in-security>eBPF in Security</a></li>
+<li><a href=#the-code>The Code</a></li>
+<li><a href=#development-and-community>Development and Community</a></li>
+<li><a href=#other-lists-of-resources-on-ebpf>Other Lists of Resources on eBPF</a></li>
+<li><a href=#acknowledgement>Acknowledgement</a></li>
+</ul>
+<h2 id=2-reference-documentation>2. Reference Documentation</h2>
+<h3 id=ebpf-essentials>eBPF Essentials</h3>
+<ul>
+<li><a href=https://ebpf.io/>ebpf.io</a> - A gateway to discover all the basics of eBPF, including a listing of the main related projects and of community resources.</li>
+<li><a href=http://docs.cilium.io/en/latest/bpf/>Cilium&rsquo;s BPF and XDP Reference Guide</a> - In-depth documentation about most features and aspects of eBPF.</li>
+</ul>
+<h3 id=kernel-documentation>Kernel Documentation</h3>
+<ul>
+<li><a href=https://www.kernel.org/doc/html/latest/bpf/index.html>BPF Documentation</a> - Index for BPF-related documentation coming with the Linux kernel.</li>
+<li><a href=https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/networking/filter.rst>linux/Documentation/networking/filter.rst</a> - eBPF specification (somewhat outdated; information should still be valid, but not exhaustive).</li>
+<li><a href=https://www.kernel.org/doc/html/latest/bpf/bpf_design_QA.html>BPF Design Q&A</a> - Frequently Asked Questions on the decisions behind the BPF infrastructure.</li>
+<li><a href=https://www.kernel.org/doc/html/latest/bpf/bpf_devel_QA.html>HOWTO interact with BPF subsystem</a> - Frequently Asked Questions about contributing to eBPF development.</li>
+</ul>
+<h3 id=manual-pages>Manual Pages</h3>
+<ul>
+<li><a href=http://man7.org/linux/man-pages/man2/bpf.2.html><code>bpf(2)</code></a> - Manual page about the <code>bpf()</code> system call, used to manage BPF programs and maps from userspace.</li>
+<li><a href=http://man7.org/linux/man-pages/man8/tc-bpf.8.html><code>tc-bpf(8)</code></a> - Manual page about using BPF with tc, including example commands and samples of code.</li>
+<li><a href=http://man7.org/linux/man-pages/man7/bpf-helpers.7.html><code>bpf-helpers(7)</code> man page</a> - Description of the in-kernel helper functions forming the BPF standard library.</li>
+</ul>
+<h3 id=other>Other</h3>
+<ul>
+<li>
+<p><a href=https://github.com/iovisor/bpf-docs/blob/master/eBPF.md>IO Visor&rsquo;s Unofficial eBPF spec</a> - Summary of eBPF syntax and operation codes.</p>
+</li>
+<li>
+<p><a href=https://prototype-kernel.readthedocs.io/en/latest/bpf/index.html>Jesper Dangaard Brouer&rsquo;s documentation</a> - Work in progress, contributions welcome.</p>
+</li>
+<li>
+<p>Emails from David Miller to the <a href=http://vger.kernel.org/vger-lists.html#xdp-newbies>xdp-newbies</a> mailing list:</p>
+<ul>
+<li><a href=https://www.spinics.net/lists/xdp-newbies/msg00179.html>bpf.h and you&mldr;</a></li>
+<li><a href=https://www.spinics.net/lists/xdp-newbies/msg00181.html>Contextually speaking&mldr;</a></li>
+<li><a href=https://www.spinics.net/lists/xdp-newbies/msg00185.html>BPF Verifier Overview</a></li>
+</ul>
+</li>
+<li>
+<p><a href=https://github.com/iovisor/bcc/blob/master/docs/kernel-versions.md>List of BPF features per kernel version</a></p>
+</li>
+</ul>
+<h2 id=3-articles-and-presentations>3. Articles and Presentations</h2>
+<h3 id=generic-ebpf-presentations-and-articles>Generic eBPF Presentations and Articles</h3>
+<p>If you are new to eBPF, you may want to try the links described as &ldquo;introductions&rdquo; in this section.</p>
+<ul>
+<li>
+<p><a href=https://blogs.igalia.com/dpino/2019/01/07/introduction-to-xdp-and-ebpf/>A brief introduction to XDP and eBPF</a> - An accessible introduction providing context, history, and details about the functioning of eBPF.</p>
+</li>
+<li>
+<p>An eBPF Overview - Blog series by Adrian Ratiu, covering many aspects of the eBPF infrastructure:</p>
+<ul>
+<li><a href=https://www.collabora.com/news-and-blog/blog/2019/04/05/an-ebpf-overview-part-1-introduction/>Part 1: Introduction</a></li>
+<li><a href=https://www.collabora.com/news-and-blog/blog/2019/04/15/an-ebpf-overview-part-2-machine-and-bytecode/>Part 2: Machine & Bytecode</a></li>
+</ul>
+</li>
+<li>
+<p><a href=https://ferrisellis.com/tags/ebpf/>Ferris Ellis&rsquo;s blog posts about eBPF</a> - They have a few posts about eBPF:</p>
+<ul>
+<li><a href=https://ferrisellis.com/content/ebpf_past_present_future/>Part 1: Past, Present, and Future</a></li>
+<li><a href=https://ferrisellis.com/content/ebpf_syscall_and_maps/>Part 2: Syscall and Map Types</a></li>
+</ul>
+</li>
+<li>
+<p><a href=https://github.com/iovisor/bcc/blob/master/docs/reference_guide.md>A BPF reference guide</a> - About BPF C and bcc Python helpers, from bcc repository.</p>
+</li>
+<li>
+<p><a href=http://schd.ws/hosted_files/ossna2017/da/BPFandXDP.pdf>Making the Kernel&rsquo;s Networking Data Path Programmable with BPF and XDP</a> - A set of slides covering all the basics about eBPF and XDP (mostly for network processing).</p>
+</li>
+<li>
+<p><a href=https://speakerdeck.com/tuxology/the-bsd-packet-filter>The BSD Packet Filter</a> - An introduction mostly covering the tracing aspects.</p>
+</li>
+<li>
+<p><a href=http://www.slideshare.net/brendangregg/bpf-tracing-and-more>BPF: tracing and more</a> - An introduction mostly covering the tracing aspects.</p>
+</li>
+<li>
+<p><a href=http://www.slideshare.net/brendangregg/linux-bpf-superpowers>Linux BPF Superpowers</a> - An introduction mostly covering the tracing aspects, first part with flame graphs.</p>
+</li>
+<li>
+<p><a href=https://www.socallinuxexpo.org/sites/default/files/presentations/Room%20211%20-%20IOVisor%20-%20SCaLE%2014x.pdf>IO Visor</a> - Also introduces <a href=https://www.iovisor.org/>IO Visor project</a>.</p>
+</li>
+<li>
+<p><a href=http://vger.kernel.org/netconf2015Starovoitov-bpf_collabsummit_2015feb20.pdf>BPF &ndash; in-kernel virtual machine</a> - Presentation by the author of eBPF.</p>
+</li>
+<li>
+<p><a href=https://lwn.net/Articles/603983/>Extending extended BPF</a> - A blog post from 2014 on the development of BPF and demonstrating what can be done with it, using an example of stateful socket filtering by attaching an eBPF program to a socket.</p>
+</li>
+<li>
+<p>Greg Marsden made some documentation about eBPF:</p>
+<ul>
+<li><a href=https://blogs.oracle.com/linux/notes-on-bpf-1>A Tour of Program Types</a> - A description of all existing hooks for BPF program types, and of their interest.</li>
+<li><a href=https://blogs.oracle.com/linux/notes-on-bpf-2>BPF helper functions</a> - A review of the kernel functions that can be called from within eBPF programs.</li>
+<li><a href=https://blogs.oracle.com/linux/notes-on-bpf-3>Communicating with Userspace</a> - How BPF communicates with userspace - BPF maps, perf events, bpf_trace_printk.</li>
+<li><a href=https://blogs.oracle.com/linux/notes-on-bpf-4>Building BPF Programs</a> - Setting up your environment to build BPF programs.</li>
+<li><a href=https://blogs.oracle.com/linux/notes-on-bpf-5>The BPF Bytecode and the BPF Verifier</a> - How does BPF ensure that programs are safe?</li>
+<li><a href=https://blogs.oracle.com/linux/notes-on-bpf-6>Using BPF to do Packet Transformation</a> - One eBPF usage about packet transformation.</li>
+</ul>
+</li>
+<li>
+<p><a href=https://sematext.com/blog/linux-kernel-observability-ebpf/>Linux Kernel Observability through eBPF</a> - A blog post covering the basics of eBPF as well as code samples in Go on how to build and load a minimal eBPF program into the kernel.</p>
+</li>
+<li>
+<p><a href="https://www.researchgate.net/publication/349173667_eBPF_-_From_a_Programmer's_Perspective">eBPF - From a Programmer&rsquo;s Perspective</a> - A short paper describing the fundamentals of eBPF and how to get started with writing eBPF programs.</p>
+</li>
+<li>
+<p><a href=https://blog.cloudflare.com/tag/ebpf/>Cloudflare&rsquo;s blog posts on eBPF</a> - Different blog posts about networking use cases and low-level aspects of eBPF.</p>
+</li>
+<li>
+<p><a href=https://www.brendangregg.com/ebpf.html>Linux Extended BPF (eBPF) Tracing Tools</a> - An in-depth collection of information around examples of performance analysis tools using eBPF. Contains also a section at the end of the page about other resources.</p>
+</li>
+</ul>
+<h3 id=bpf-internals>BPF Internals</h3>
+<ul>
+<li>
+<p>Daniel Borkmann has made several presentations and papers covering the internals of eBPF, in particular about its use with tc.</p>
+<ul>
+<li><a href=https://fosdem.org/2017/schedule/event/ebpf_xdp/>eBPF and XDP walkthrough and recent (2017) updates</a></li>
+<li><a href=http://netdevconf.org/1.2/session.html?daniel-borkmann>Advanced programmability and recent updates with tc&rsquo;s cls_bpf</a> - Details on eBPF, its use for tunneling and encapsulation, direct packet access, and more.</li>
+<li><a href=http://netdevconf.org/1.2/slides/oct5/07_tcws_daniel_borkmann_2016_tcws.pdf>cls_bpf/eBPF updates since netdev 1.1</a> - Part of <a href=http://netdevconf.org/1.2/session.html?jamal-tc-workshop>this tc workshop</a>.</li>
+<li><a href=http://www.netdevconf.org/1.1/proceedings/slides/borkmann-tc-classifier-cls-bpf.pdf>On getting tc classifier fully programmable with cls_bpf</a> - Introduction to eBPF, including several features (map management, tail calls, verifier). The full paper <a href=http://www.netdevconf.org/1.1/proceedings/papers/On-getting-tc-classifier-fully-programmable-with-cls-bpf.pdf>is also available here</a>.</li>
+<li><a href=https://archive.fosdem.org/2016/schedule/event/ebpf/attachments/slides/1159/export/events/attachments/ebpf/slides/1159/ebpf.pdf>Linux tc and eBPF</a></li>
+</ul>
+</li>
+<li>
+<p><a href=https://www.iovisor.org/resources/blog>IO Visor blog</a></p>
+</li>
+<li>
+<p><a href=http://www.slideshare.net/ThomasGraf5/linux-networking-explained>Linux Networking Explained</a> - Linux networking internals, with a part about eBPF.</p>
+</li>
+</ul>
+<h3 id=kernel-tracing>Kernel Tracing</h3>
+<ul>
+<li><a href=https://www.joyfulbikeshedding.com/blog/2019-01-31-full-system-dynamic-tracing-on-linux-using-ebpf-and-bpftrace.html>Full-system dynamic tracing on Linux using eBPF and bpftrace</a> - A detailed introduction to tracing with eBPF, from listing the available trace points to running bpftrace programs.</li>
+<li><a href=http://www.slideshare.net/vh21/meet-cutebetweenebpfandtracing>Meet-cute between eBPF and Kernel Tracing</a> - Kprobes, uprobes, ftrace.</li>
+<li><a href=http://www.slideshare.net/vh21/linux-kernel-tracing>Linux Kernel Tracing</a> - Systemtap, Kernelshark, trace-cmd, LTTng, perf-tool, ftrace, hist-trigger, perf, function tracer, tracepoint, kprobe/uprobe, and more.</li>
+<li>Brendan Gregg&rsquo;s blog, and in particular <a href=http://www.brendangregg.com/blog/2016-03-05/linux-bpf-superpowers.html>Linux BPF Superpowers</a> article.</li>
+</ul>
+<h3 id=xdp>XDP</h3>
+<ul>
+<li>
+<p><a href=https://blogs.igalia.com/dpino/2019/01/10/the-express-data-path/>The eXpress Data Path</a> - A very accessible introduction to XDP, providing sample code to show how to process packets.</p>
+</li>
+<li>
+<p>All XDP details in a technical paper: <a href=https://github.com/tohojo/xdp-paper>The eXpress Data Path: Fast Programmable Packet Processing in the Operating System Kernel</a>, by Toke Høiland-Jørgensen, Jesper Dangaard Brouer, Daniel Borkmann, John Fastabend, Tom Herbert, David Ahern and David Miller, all being essential eBPF and XDP contributors.</p>
+</li>
+<li>
+<p><a href=https://prototype-kernel.readthedocs.io/en/latest/networking/XDP/index.html>Work-in-progress documentation for XDP</a></p>
+</li>
+<li>
+<p><a href=http://docs.cilium.io/en/latest/bpf/>BPF and XDP Reference Guide</a> - Guide from the Cilium project.</p>
+</li>
+<li>
+<p><a href=https://www.iovisor.org/technology/xdp>XDP Project overview</a></p>
+</li>
+<li>
+<p><a href=https://github.com/iovisor/bpf-docs/raw/master/Express_Data_Path.pdf>eXpress Data Path (XDP)</a> - The first presentation about XDP.</p>
+</li>
+<li>
+<p><a href=https://events.linuxfoundation.org/sites/events/files/slides/iovisor-lc-bof-2016.pdf>BoF - What Can BPF Do For You?</a></p>
+</li>
+<li>
+<p><a href=http://www.slideshare.net/IOVisor/express-data-path-linux-meetup-santa-clara-july-2016>eXpress Data Path</a> - Contains some benchmark results obtained with the mlx4 driver.</p>
+</li>
+<li>
+<p>Jesper Dangaard Brouer has several sets of slides describing the internals of XDP:</p>
+<ul>
+<li><a href=http://people.netfilter.org/hawk/presentations/xdp2016/xdp_intro_and_use_cases_sep2016.pdf>XDP − eXpress Data Path, Intro and future use-cases</a> - Linux Kernel&rsquo;s fight against DPDK. Future plans (as of this writing) for XDP and comparison with DPDK.</li>
+<li><a href=http://netdevconf.org/1.2/session.html?jesper-performance-workshop>Network Performance Workshop</a> - Additional hints about XDP internals and expected evolution.</li>
+<li><a href=http://people.netfilter.org/hawk/presentations/OpenSourceDays2017/XDP_DDoS_protecting_osd2017.pdf>XDP – eXpress Data Path, Used for DDoS protection</a> - Details and use cases about XDP, with benchmark results, and code snippets for benchmarking as well as for basic DDoS protection with eBPF/XDP (based on an IP blacklisting scheme).</li>
+<li><a href=http://people.netfilter.org/hawk/presentations/MM-summit2017/MM-summit2017-JesperBrouer.pdf>Memory vs. Networking, Provoking and fixing memory bottlenecks</a> - Advanced details about current memory issues faced by XDP developers.</li>
+<li><a href=http://netdevconf.org/2.1/session.html?gospodarek>XDP for the Rest of Us</a> - How to get started with eBPF and XDP for normal humans. Also summarized by Julia Evans on <a href=http://jvns.ca/blog/2017/04/07/xdp-bpf-tutorial/>her blog</a>.</li>
+<li><a href=http://people.netfilter.org/hawk/presentations/LLC2018/XDP_LLC2018_redirect.pdf>XDP now with REDIRECT</a> - Update on XDP, and in particular on the redirect actions.</li>
+</ul>
+</li>
+<li>
+<p><a href=http://netdevconf.org/1.2/session.html?herbert-xdp-workshop>XDP workshop &ndash; Introduction, experience, and future development (Video)</a></p>
+</li>
+<li>
+<p><a href=https://cdn.shopify.com/s/files/1/0177/9886/files/phv2017-gbertin.pdf>High Speed Packet Filtering on Linux</a> - About packet filtering on Linux, DDoS protection, packet processing in the kernel, kernel bypass, XDP and eBPF.</p>
+</li>
+<li>
+<p><a href=https://blog.cloudflare.com/how-to-drop-10-million-packets/>How to drop 10 million packets per second</a> - Cloudflare&rsquo;s blog post talking about their move to using XDP for packet filtering.</p>
+</li>
+</ul>
+<h3 id=af_xdp>AF_XDP</h3>
+<ul>
+<li><a href=https://www.kernel.org/doc/html/latest/networking/af_xdp.html>AF_XDP</a> - Kernel documentation on the AF_XDP address family.</li>
+<li><a href=https://archive.fosdem.org/2018/schedule/event/af_xdp/>Fast Packet Processing in Linux with AF_XDP</a></li>
+</ul>
+<h3 id=bpfilter>bpfilter</h3>
+<ul>
+<li><a href=https://cilium.io/blog/2018/04/17/why-is-the-kernel-community-replacing-iptables/>Why is the kernel community replacing iptables with BPF?</a> - A blog post by Cilium on the the motivations behind eBPF and bpfilter, with a couple examples and links to other projects using eBPF and bpfilter.</li>
+<li><a href=https://qmo.fr/docs/talk_20180316_frnog_bpfilter.pdf>bpfilter: Linux firewall with eBPF sauce</a> - Slides from a talk by Quentin Monnet with a background on eBPF and comparing bpfilter to iptables.</li>
+</ul>
+<h3 id=btf>BTF</h3>
+<ul>
+<li><a href=https://www.kernel.org/doc/html/latest/bpf/btf.html>BPF Type Format (BTF)</a> - Kernel documentation about BTF, explaining how to use it.</li>
+<li><a href=https://facebookmicrosites.github.io/bpf/blog/2018/11/14/btf-enhancement.html>Enhancing the Linux kernel with BTF type information</a> - A description of the work done with BTF to provide debugging information for BPF programs.</li>
+</ul>
+<h3 id=cbpf>cBPF</h3>
+<ul>
+<li><a href=http://www.tcpdump.org/papers/bpf-usenix93.pdf>The BSD Packet Filter: A New Architecture for User-level Packet Capture</a> - The original paper about (classic) BPF.</li>
+<li><a href="https://www.freebsd.org/cgi/man.cgi?query=bpf&sektion=4">The FreeBSD manual page about BPF</a></li>
+<li><a href=http://borkmann.ch/talks/2013_devconf.pdf>Linux' packet mmap(2), BPF, and Netsniff-NG</a></li>
+<li><a href=http://borkmann.ch/talks/2014_devconf.pdf>tc and cls bpf: lightweight packet classifying with BPF</a></li>
+<li><a href=https://blog.cloudflare.com/introducing-the-bpf-tools/>Introducing Cloudflare&rsquo;s BPF Tools</a> - Usage of BPF bytecode with the <code>xt_bpf</code> module for iptables.</li>
+<li><a href=http://biot.com/capstats/bpf.html>Libpcap filters syntax</a></li>
+</ul>
+<h3 id=hardware-offload>Hardware Offload</h3>
+<ul>
+<li><a href=http://netdevconf.org/1.2/session.html?jakub-kicinski>eBPF/XDP hardware offload to SmartNICs</a> - Hardware offload for eBPF with TC or XDP (Linux kernel 4.9+), introduced by Netronome.</li>
+<li><a href=https://www.netdevconf.org/2.2/session.html?viljoen-xdpoffload-talk>Comprehensive XDP offload&mdash;Handling the edge cases</a> - An update on the topic above.</li>
+<li><a href=https://github.com/rprinz08/hBPF>hBPF - eBPF in hardware</a> - An eBPF CPU written for FPGAs.</li>
+<li><a href=https://github.com/Dantali0n/qemu-csd>OpenCSD eBPF SSD offloading</a> - Computational Storage simulation (QEMU) platform with FUSE LFS filesystem for Zoned Namespaces NVMe SSDs using uBPF for compute kernel offloading, all in userspace.</li>
+</ul>
+<h2 id=4-tutorials>4. Tutorials</h2>
+<ul>
+<li><a href=https://github.com/iovisor/bcc/blob/master/docs/reference_guide.md>bcc Reference Guide</a> - Many incremental steps to start using bcc and eBPF, mostly centered on tracing and monitoring.</li>
+<li><a href=https://github.com/iovisor/bcc/blob/master/docs/tutorial_bcc_python_developer.md>bcc Python Developer Tutorial</a> - Comes with bcc, but targets the Python bits across seventeen &ldquo;lessons&rdquo;.</li>
+<li><a href=https://nakryiko.com/posts/libbpf-bootstrap/>Building BPF applications with libbpf-bootstrap</a> - Helps generate minimal or advanced templates to bootstrap your own applications (kernel side and user space management for maps and programs) with features like CO-RE, global variables, and ring buffer.</li>
+<li><a href=https://bolinfest.github.io/opensnoop-native/>How I ended up writing opensnoop in pure C using eBPF</a> - A thorough walk-through of how to write eBPF programs, first using only bpf() syscall, and then libbpf library, with reproducible code examples.</li>
+<li><a href=https://github.com/goldshtn/linux-tracing-workshop>Linux Tracing Workshops Materials</a> - Involves the use of several BPF tools for tracing.</li>
+<li><a href=https://blog.yadutaf.fr/2017/07/28/tracing-a-packet-journey-using-linux-tracepoints-perf-ebpf/>Tracing a packet journey using Linux tracepoints, perf and eBPF</a> - Troubleshooting ping requests and replies with perf and bcc programs.</li>
+<li><a href=https://open-nfp.org/dataplanes-ebpf/technical-papers/>Open NFP platform</a> - Operated by Netronome: some tutorials for network-related eBPF use cases, including an eBPF Offload Starting Guide.</li>
+<li><a href=http://netdevconf.org/2.1/session.html?gospodarek>XDP for the Rest of Us</a> - First edition of a workshop to get started with XDP.</li>
+<li><a href=https://www.netdevconf.org/2.2/session.html?gospodarek-xdp-workshop>XDP for the Rest of Us</a> - Second edition, with new contents.</li>
+<li><a href=https://medium.com/@fntlnz/load-xdp-programs-using-the-ip-iproute2-command-502043898263>Load XDP programs using the ip (iproute2) command</a></li>
+<li><a href=https://github.com/xdp-project/xdp-tutorial>XDP Hands-On Tutorial</a> - A progressive (three levels of difficulty) tutorial to learn how to process packets with XDP.</li>
+<li><a href=https://www.trailofbits.com/post/all-your-tracing-are-belong-to-bpf>All your tracing are belong to BPF</a> - A step-by-step walkthrough to integrate tracing capabilities in your C++ applications with the LLVM libraries.</li>
+</ul>
+<h2 id=5-examples>5. Examples</h2>
+<ul>
+<li><a href=https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/samples/bpf>linux/samples/bpf/</a> - In the kernel tree: some sample eBPF programs.</li>
+<li><a href=https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/tools/testing/selftests/bpf>linux/tools/testing/selftests/bpf</a> - In the kernel tree: Linux BPF selftests, with many eBPF programs.</li>
+<li><a href=https://github.com/netoptimizer/prototype-kernel/tree/master/kernel/samples/bpf>prototype-kernel/kernel/samples/bpf</a> - Jesper Dangaard Brouer&rsquo;s prototype-kernel repository contains some additional examples that can be compiled outside of kernel infrastructure.</li>
+<li><a href=https://git.kernel.org/pub/scm/network/iproute2/iproute2-next.git/tree/examples/bpf>iproute2/examples/bpf/</a> - Some networking programs to attach to the TC interface.</li>
+<li><a href=https://github.com/Netronome/bpf-samples/>Netronome sample network applications</a> - Provides basic but complete examples of eBPF applications also compatible with hardware offload.</li>
+<li><a href=https://github.com/iovisor/bcc/tree/master/examples>bcc/examples</a> - Examples coming along with the bcc tools, mostly about tracing.</li>
+<li><a href=https://github.com/iovisor/bcc/tree/master/tools>bcc/tools</a> - These tools themselves can be seen as example use cases for BPF programs, mostly for tracing and monitoring. bcc tools have been packaged for some Linux distributions.</li>
+<li><a href=https://github.com/fzakaria/eBPF-mpls-encap-decap>MPLSinIP sample</a> - A heavily commented sample demonstrating how to encapsulate & decapsulate MPLS within IP. The code is commented for those new to BPF development.</li>
+<li><a href=https://github.com/vbpf/ebpf-samples>ebpf-samples</a> - A collection of compiled (as ELF object files) samples gathered from several projects, primarily intended to serve as test cases for user space verifiers.</li>
+<li><a href=https://github.com/niclashedam/ebpf-kill-example>ebpf-kill-example</a> - A fully documented and tested example of an eBPF probe that logs all force-kills and prints them out in user-space.</li>
+<li><a href=https://github.com/foniod/redbpf/tree/main/examples>redbpf examples</a> - Example programs for using RedBPF to write eBPF programs in Rust.</li>
+</ul>
+<h2 id=6-ebpf-workflow-tools-and-utilities>6. eBPF Workflow: Tools and Utilities</h2>
+<h3 id=bcc>bcc</h3>
+<ul>
+<li><a href=https://github.com/iovisor/bcc/>bcc</a> - Framework and set of tools - One way to handle BPF programs, in particular for tracing and monitoring. Also includes some utilities that may help inspect maps or programs on the system.</li>
+<li><a href=https://github.com/iovisor/bcc/tree/master/src/lua>Lua front-end for BCC</a> - Another alternative to C, and even to most of the Python code used in bcc.</li>
+</ul>
+<h3 id=iproute2>iproute2</h3>
+<ul>
+<li><a href=https://git.kernel.org/pub/scm/network/iproute2/iproute2.git>iproute2</a> - Package containing tools for network management on Linux. In particular, it contains <code>tc</code>, used to manage eBPF filters and actions, and <code>ip</code>, used to manage XDP programs. Most of the code related to BPF is in lib/bpf.c.</li>
+<li><a href=https://git.kernel.org/pub/scm/network/iproute2/iproute2-next.git>iproute2-next</a> - The development tree, synchronised with net-next.</li>
+</ul>
+<h3 id=llvm>LLVM</h3>
+<ul>
+<li>
+<p><a href=https://llvm.org/>LLVM</a> - Contains several tools used in eBPF workflows. Snapshots of the latest versions for Ubuntu/Debian can be retrieved from <a href=http://apt.llvm.org/>here</a>.</p>
+<ul>
+<li>clang is used to compile C to eBPF object file under the ELF format (clang v3.7.1+). The BPF backend was added with <a href=https://reviews.llvm.org/D6494>this commit</a>.</li>
+<li>llvm-objdump is used to dump the content of an object file in human-readable format, possibly with the initial C source code (llvm-objdump v4.0+).</li>
+<li>llvm-mc is used to compile from LLVM intermediate representation to eBPF object file, so that one can compile from C to eBPF assembly, tinker with assembly, then compile to ELF file.</li>
+</ul>
+</li>
+</ul>
+<h3 id=libbpf>libbpf</h3>
+<ul>
+<li><a href=https://git.kernel.org/pub/scm/linux/kernel/git/davem/net-next.git/tree/tools/lib/bpf>libbpf</a> - A C library used for handling BPF objects (programs and maps), and manipulating ELF object files containing them. It is shipped with the kernel and <a href=https://github.com/libbpf/libbpf>mirrored on GitHub</a>.</li>
+<li><a href=https://github.com/libbpf/libbpf-bootstrap>libbpf-bootstrap</a> - Scaffolding for BPF application development with libbpf and BPF CO-RE.</li>
+</ul>
+<h3 id=aya>Aya</h3>
+<ul>
+<li><a href=https://github.com/aya-rs/aya>aya</a> - A pure Rust library for writing, loading, and managing eBPF objects, with a focus on developer experience and operability. It supports writing eBPF programs in Rust and distributing library code over crates.io to share it between eBPF programs. Aya does not depend on libbpf.</li>
+<li><a href=https://github.com/aya-rs/aya-template>aya-template</a> - Templates for writing BPF applications in Aya that can be used with <a href=https://github.com/cargo-generate/cargo-generate><code>cargo generate</code></a>.</li>
+</ul>
+<h3 id=oxidebpf>oxidebpf</h3>
+<ul>
+<li><a href=https://github.com/redcanaryco/oxidebpf>oxidebpf</a> - A pure Rust library for managing eBPF programs, designed for security use cases. The featureset is more limited than other libraries but emphasizes stability across a wide range of kernels and backwards-compatible compile-once-run-most-places.</li>
+</ul>
+<h3 id=bpftool-and-other-tools-from-the-kernel-tree>bpftool and Other Tools from the Kernel Tree</h3>
+<ul>
+<li>
+<p><a href=https://git.kernel.org/pub/scm/linux/kernel/git/bpf/bpf-next.git/tree/tools/bpf/bpftool>bpftool</a> - Also some other tools in the kernel tree, under <a href="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/tools/net?h=v4.14">linux/tools/net/</a> for versions earlier than 4.15, or <a href=https://git.kernel.org/pub/scm/linux/kernel/git/davem/net-next.git/tree/tools/bpf>linux/tools/bpf/</a> after that:</p>
+<ul>
+<li><a href=https://git.kernel.org/pub/scm/linux/kernel/git/bpf/bpf-next.git/tree/tools/bpf/bpftool><code>bpftool</code></a> - A generic utility that can be used to interact with eBPF programs and maps from userspace, for example to show, dump, load, disassemble, pin programs, or to show, create, pin, update, delete maps, or to attach and detach programs to cgroups.</li>
+<li><a href=https://git.kernel.org/pub/scm/linux/kernel/git/bpf/bpf-next.git/tree/tools/bpf/bpf_asm.c><code>bpf_asm</code></a> - A minimal cBPF assembler.</li>
+<li><a href=https://git.kernel.org/pub/scm/linux/kernel/git/bpf/bpf-next.git/tree/tools/bpf/bpf_dbg.c><code>bpf_dbg</code></a> - A small debugger for cBPF programs.</li>
+<li><a href=https://git.kernel.org/pub/scm/linux/kernel/git/bpf/bpf-next.git/tree/tools/bpf/bpf_jit_disasm.c><code>bpf_jit_disasm</code></a> - A disassembler for both BPF flavors and could be highly useful for JIT debugging.</li>
+</ul>
+</li>
+</ul>
+<h3 id=user-space-ebpf>User Space eBPF</h3>
+<ul>
+<li><a href=https://github.com/iovisor/ubpf/>uBPF</a> - Written in C. Contains an interpreter, a JIT compiler for x86_64 architecture, an assembler and a disassembler.</li>
+<li><a href=https://github.com/YutaroHayakawa/generic-ebpf>A generic implementation</a> - With support for FreeBSD kernel, FreeBSD user space, Linux kernel, Linux user space and macOS user space. Used for the <a href=https://www.unix.com/man-page/freebsd/4/vale/>VALE software switch</a>&rsquo;s <a href=https://github.com/YutaroHayakawa/vale-bpf>BPF extension module</a>.</li>
+<li><a href=https://github.com/qmonnet/rbpf>rbpf</a> - Written in Rust. Interpreter for Linux, macOS and Windows, and JIT-compiler for x86_64 under Linux.</li>
+<li><a href=https://github.com/vbpf/ebpf-verifier>PREVAIL</a> - A user space verifier for eBPF <a href=https://elazarg.github.io/pldi19main-final.pdf>using an abstract interpretation layer</a>, with support for loops.</li>
+<li><a href=https://github.com/grantseltzer/oster>oster</a> - Written in Go. A tool for tracing execution of Go programs by attaching eBPF to uprobes.</li>
+<li><a href=https://rubrikinc.github.io/wachy/>wachy</a> - A tracing profiler that aims to make eBPF uprobe-based debugging easier to use. This is done by displaying traces in a UI next to the source code and allowing interactive drilldown analysis.</li>
+</ul>
+<h3 id=testing-in-virtual-environments>Testing in Virtual Environments</h3>
+<ul>
+<li><a href=https://github.com/iovisor/xdp-vagrant>A Vagrant setup</a> - To easily test XDP. Less useful now that generic XDP (driver-independant, mostly for testing) exists.</li>
+<li><a href=https://github.com/zlim/bcc-docker>bcc in a Docker container</a></li>
+</ul>
+<h2 id=7-projects-related-to-ebpf>7. Projects Related to eBPF</h2>
+<ul>
+<li>
+<p>P4 has some interactions with eBPF:</p>
+<ul>
+<li><a href=https://schd.ws/hosted_files/2016p4workshop/1d/Intel%20Fastabend-P4%20on%20the%20Edge.pdf>P4 on the Edge</a> - P4 with eBPF to create high-performance programmable switches.</li>
+<li><a href=https://ovsorbit.org/#e11>OvS Orbit episode (#11), called P4 on the Edge</a> - Related to the former item. Audio interview of John Fastabend by Ben Pfaff, one of the core maintainers of Open vSwitch.</li>
+<li><a href=https://open-nfp.org/m/documents/Open_NFP_P4_EBPF_Linux_TC_Offload_FINAL_5JHLETS.pdf>P4, EBPF and Linux TC Offload</a> - P4 with some elements related to eBPF hardware offload on Netronome&rsquo;s NFP (Network Flow Processor) architecture.</li>
+<li><a href=https://github.com/iovisor/bcc/tree/master/src/cc/frontends/p4>Old documentation for P4 usage with eBPF</a> - From bcc repository; deprecated by the P4_16 backend linked below.</li>
+<li><a href=https://github.com/p4lang/p4c/blob/master/backends/ebpf/README.md>P4_16 backend for eBPF</a></li>
+</ul>
+</li>
+<li>
+<p><a href=https://cilium.io/>Cilium</a> project (<a href=https://github.com/cilium/cilium>GitHub repository</a>) is a technology relying on BPF and XDP to provide &ldquo;fast in-kernel networking and security policy enforcement for containers based on eBPF programs generated on the fly&rdquo;. Many presentations available (with overlap):</p>
+<ul>
+<li><a href=http://www.slideshare.net/ThomasGraf5/clium-container-networking-with-bpf-xdp>Cilium: Networking & Security for Containers with BPF & XDP</a> - Also featuring a load balancer use case</li>
+<li><a href=http://www.slideshare.net/Docker/cilium-bpf-xdp-for-containers-66969823>Cilium: Networking & Security for Containers with BPF & XDP</a> - <a href="https://www.youtube.com/watch?v=TnJF7ht3ZYc&list=PLkA60AVN3hh8oPas3cq2VA9xB7WazcIgs">video</a></li>
+<li><a href=http://www.slideshare.net/ThomasGraf5/cilium-fast-ipv6-container-networking-with-bpf-and-xdp>Cilium: Fast IPv6 container Networking with BPF and XDP</a></li>
+<li><a href=https://fosdem.org/2017/schedule/event/cilium/>Cilium: BPF & XDP for containers</a></li>
+<li><a href=https://ovsorbit.benpfaff.org/>OvS Orbit episode (#4)</a> - Interview of Thomas Graf by Ben Pfaff.</li>
+<li><a href=https://opensource.googleblog.com/2016/11/cilium-networking-and-security.html>A generic introduction to Cilium</a></li>
+<li><a href=http://blog.ipspace.net/2016/10/fast-linux-packet-forwarding-with.html>A podcast interviewing Thomas Graf</a> - Ivan Pepelnjak interviewing Thomas, October 2016, on eBPF, P4, XDP and Cilium.</li>
+</ul>
+</li>
+<li>
+<p>Open vSwitch (OvS), and its related project Open Virtual Network (OVN, an open source network virtualization solution) are considering using eBPF at various level:</p>
+<ul>
+<li><a href=http://openvswitch.org/support/ovscon2016/7/1120-tu.pdf>Offloading OVS Flow Processing using eBPF</a></li>
+<li><a href=http://openvswitch.org/support/ovscon2016/7/1245-bertrone.pdf>Coupling the Flexibility of OVN with the Efficiency of IOVisor</a></li>
+</ul>
+</li>
+<li>
+<p><a href=https://code.fb.com/open-source/open-sourcing-katran-a-scalable-network-load-balancer/>Katran</a> - A layer 4 load-balancer based on XDP, open-sourced by Facebook.</p>
+</li>
+<li>
+<p><a href=http://netdevconf.org/2.1/session.html?bertin>XDP in practice: integrating XDP in our DDoS mitigation pipeline</a> - Protection against DDoS with XDP at Cloudflare.</p>
+</li>
+<li>
+<p><a href=http://netdevconf.org/2.1/session.html?zhou>Droplet: DDoS countermeasures powered by BPF + XDP</a> - Protection against DDoS with XDP at Facebook.</p>
+</li>
+<li>
+<p><a href=https://dpdkuserspace2018.sched.com/event/G45Z/dpdk-pmd-for-afxdp>DPDK has a poll-mode driver (PMD) based on AF_XDP</a></p>
+</li>
+<li>
+<p><a href=http://www.slideshare.net/IOVisor/ceth-for-xdp-linux-meetup-santa-clara-july-2016>CETH for XDP</a> - Common Ethernet Driver Framework for faster network I/O, a technology initiated by Mellanox.</p>
+</li>
+<li>
+<p>Suricata, an open source intrusion detection system, <a href=https://www.stamus-networks.com/2016/09/28/suricata-bypass-feature/>relies on eBPF components</a> for its &ldquo;capture bypass&rdquo; features:</p>
+<ul>
+<li><a href="http://suricata.readthedocs.io/en/latest/capture-hardware/ebpf-xdp.html?highlight=XDP#ebpf-and-xdp">&ldquo;eBPF and XDP&rdquo; section of Suricata documentation</a></li>
+<li><a href=https://github.com/pevma/SEPTun-Mark-II>SEPTun-Mark-II</a> - Extreme Performance Tuning guide - Mark II.</li>
+<li><a href=https://www.stamus-networks.com/2016/09/28/suricata-bypass-feature/>A blog post introducing the feature</a></li>
+<li><a href=http://netdevconf.org/1.2/slides/oct6/10_suricata_ebpf.pdf>The adventures of a Suricate in eBPF land</a></li>
+<li><a href=https://www.slideshare.net/ennael/kernel-recipes-2017-ebpf-and-xdp-eric-leblond>eBPF and XDP seen from the eyes of a meerkat</a></li>
+</ul>
+</li>
+<li>
+<p><a href=https://github.com/iovisor/bpf-docs/blob/master/university/sigcomm-ccr-InKev-2016.pdf>InKeV: In-Kernel Distributed Network Virtualization for DCN</a></p>
+</li>
+<li>
+<p><a href=https://fosdem.org/2017/schedule/event/go_bpf/>gobpf - utilizing eBPF from Go</a> - A library to create, load and use eBPF programs from Go.</p>
+</li>
+<li>
+<p><a href=https://wkz.github.io/ply/>ply</a> - A small but flexible open source dynamic tracer for Linux, with features similar to the bcc tools, but with a simpler language inspired by awk and DTrace.</p>
+</li>
+<li>
+<p><a href=https://bpftrace.org/>bpftrace</a> - A tool for tracing with its own high-level tracing language. It is flexible enough to be envisioned as a Linux replacement for DTrace and SystemTap.</p>
+<ul>
+<li><a href=https://www.brendangregg.com/BPF/bpftrace-cheat-sheet.html>bpftrace Cheat Sheet</a> - Summary and cheat sheet for programming in bpftrace. Contains information about syntax, probe types, variables and functions.</li>
+</ul>
+</li>
+<li>
+<p><a href=https://github.com/iovisor/kubectl-trace>kubectl trace</a> - A kubectl plug-in for executing bpftrace programs in a Kubernetes cluster.</p>
+</li>
+<li>
+<p><a href=https://github.com/genuinetools/bpfd>bpfd</a> - Framework for running BPF programs with rules on Linux as a daemon. Container aware.</p>
+</li>
+<li>
+<p><a href=https://github.com/joelagnel/bpfd>BPFd</a> - A distinct BPF daemon, trying to leverage the flexibility of the bcc tools to trace and debug remote targets, and in particular devices running with Android.</p>
+</li>
+<li>
+<p><a href=https://github.com/joelagnel/adeb>adeb</a> - A Linux shell environment for using tracing tools on Android with BPFd.</p>
+</li>
+<li>
+<p><a href=https://github.com/olcf/greggd>greggd</a> - System daemon to compile and load eBPF programs into the kernel, and forward program output to socket for metric aggregation.</p>
+</li>
+<li>
+<p><a href=https://events.linuxfoundation.org/wp-content/uploads/2017/11/When-eBPF-Meets-FUSE-Improving-Performance-of-User-File-Systems-Ashish-Bijlani-Georgia-Tech.pdf>FUSE</a> - Considers using eBPF.</p>
+</li>
+<li>
+<p><a href=https://www.slideshare.net/necstlab/deepmon-dynamic-and-energy-efficient-power-monitoring-for-containerbased-infrastructures>DEEP-mon</a> - Helps with measuring power consumption for servers and uses eBPF programs for in-kernel aggregation of data.</p>
+</li>
+<li>
+<p><a href=https://github.com/navarrothiago/upf-bpf>upf-bpf</a> - An in-kernel solution based on XDP for 5G UPF.</p>
+</li>
+<li>
+<p><a href=https://github.com/foniod/redbpf>redbpf</a> - Tooling and framework to write eBPF code in Rust efficiently.</p>
+</li>
+<li>
+<p><a href=https://github.com/pixie-io/pixie>pixie</a> - Observability for Kubernetes using eBPF. Features include protocol tracing, application profiling, and support for distributed bpftrace deployments.</p>
+</li>
+<li>
+<p><a href=https://projectcalico.docs.tigera.io/about/about-calico>Project Calico</a> - Calico is an open source networking and network security solution for containers, virtual machines, and native host-based workloads. Calico&rsquo;s eBPF data plane delivers a low latency, high throughput data plane with a rich network security policy model.</p>
+<ul>
+<li><a href=https://projectcalico.docs.tigera.io/maintenance/ebpf/enabling-bpf>Enabling eBPF data plane with Calico</a></li>
+</ul>
+</li>
+<li>
+<p><a href=https://falco.org/>Falco</a> - A cloud-native runtime security project used as a Kubernetes threat detection engine.</p>
+</li>
+<li>
+<p><a href=https://github.com/Sysinternals/SysmonForLinux>Sysmon for Linux</a> - A security monitoring tool. It depends on <a href=https://github.com/Sysinternals/SysinternalsEBPF>SysinternalsEBPF</a>.</p>
+</li>
+<li>
+<p><a href=https://redcanary.com/blog/ebpf-for-security>Red Canary Linux Agent</a> - Red Canary has started to incorporate eBPF to their Linux security sensor.</p>
+</li>
+<li>
+<p><a href=https://github.com/aquasecurity/tracee>Tracee</a> - A runtime security and forensics tool for Linux which uses eBPF technology to trace the system and applications at runtime, and analyze collected events to detect suspicious behavioral patterns.</p>
+</li>
+<li>
+<p><a href=https://github.com/microsoft/ebpf-for-windows>eBPF for Windows</a> - This project is a work-in-progress that allows using existing eBPF toolchains and APIs familiar in the Linux ecosystem to be used on top of Windows.</p>
+</li>
+<li>
+<p><a href=https://github.com/redcanaryco/redcanary-ebpf-sensor>redcanary-ebpf-sensor</a> - A set of BPF programs that gather security relevant event data from the Linux kernel. The BPF programs are combined into a single ELF file from which individual probes can be selectively loaded, depending on the running operating system and kernel version.</p>
+</li>
+<li>
+<p><a href=https://github.com/linux-lock/bpflock>bpflock - Lock Linux machines</a> - An eBPF driven security tool for locking and auditing Linux machines.</p>
+</li>
+</ul>
+<h2 id=8-ebpf-in-security>8. eBPF in Security</h2>
+<ul>
+<li><a href=https://embracethered.com/blog/tags/ebpf>Embrace The Red: Offensive BPF!</a> - A series of posts around the introduction into BPF with a focus to an offensive setting, and also how its misuse can be detected. Posts include discussions on the rootkit capabilities of eBPF, or on which tracing type is needed for different use cases.</li>
+<li><a href=https://djalal.opendz.org/post/ebpf-block-linux-fileless-payload-execution-with-bpf-lsm/>eBPF: Block Linux Fileless Payload &ldquo;Malware&rdquo; Execution with BPF LSM</a> - Blog post about how BPF can help detection and blocking fileless malware.</li>
+<li><a href=https://www.blackhat.com/us-21/briefings/schedule/#with-friends-like-ebpf-who-needs-enemies-23619>Blackhat 2021: With Friends Like eBPF, Who Needs Enemies?</a> - Talk about an eBPF rootkit and how the capabilities of eBPF could be abused. The rootkit was also the object of a talk at Defcon, <a href=https://defcon.org/html/defcon-29/dc-29-speakers.html#fournier>eBPF, I thought we were friends !</a>.</li>
+<li><a href=https://github.com/Gui774ume/ebpfkit>ebpfkit</a> - A rootkit that leverages multiple eBPF features to implement offensive security techniques.</li>
+<li><a href=https://github.com/Gui774ume/ebpfkit-monitor>ebpfkit-monitor</a> - An utility to statically analyze eBPF bytecode or monitor suspicious eBPF activity at runtime. It was specifically designed to detect ebpfkit.</li>
+<li><a href=https://github.com/pathtofile/bad-bpf>Bad BPF</a> - A collection of malicious eBPF programs that make use of eBPF&rsquo;s ability to read and write user data in between the usermode program and the kernel.</li>
+</ul>
+<h2 id=9-the-code>9. The Code</h2>
+<ul>
+<li>
+<p><a href=https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/include/linux/bpf.h>linux/include/linux/bpf.h</a> - with <a href=https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/include/uapi/linux/bpf.h>linux/include/uapi/bpf.h</a>: definitions related to eBPF, to be used respectively in the kernel and to interface with userspace programs.</p>
+</li>
+<li>
+<p><a href=https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/include/linux/filter.h>linux/include/linux/filter.h</a> - with <a href=https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/include/uapi/linux/filter.h>linux/include/uapi/filter.h</a>: information used to run the BPF programs themselves.</p>
+</li>
+<li>
+<p><a href=https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/kernel/bpf>linux/kernel/bpf/</a> - This directory contains most of BPF-related code. In particular, those files are worth of interest:</p>
+<ul>
+<li><a href=https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/kernel/bpf/syscall.c><code>syscall.c</code></a> - Different operations permitted by the system call, such as program loading or map management.</li>
+<li><a href=https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/kernel/bpf/core.c><code>core.c</code></a> - BPF interpreter.</li>
+<li><a href=https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/kernel/bpf/verifier.c><code>verifier.c</code></a> - BPF verifier.</li>
+</ul>
+</li>
+<li>
+<p><a href=https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/net/core/filter.c>linux/net/core/filter.c</a> - Functions and eBPF helpers related to networking (TC, XDP etc.); also contains the code to migrate cBPF bytecode to eBPF (all cBPF programs are translated to eBPF in recent kernels).</p>
+</li>
+<li>
+<p><a href=https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/kernel/trace/bpf_trace.c>linux/kernel/trace/bpf_trace.c</a> - Functions and eBPF helpers related to tracing and monitoring (kprobes, tracepoints, etc.).</p>
+</li>
+<li>
+<p>The JIT compilers are under the directory of their respective architectures, such as file <a href=https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/arch/x86/net/bpf_jit_comp.c>linux/arch/x86/net/bpf_jit_comp.c</a> for x86. Exception is made for JIT compilers used for hardware offload, sitting in their drivers, such as <a href=https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/drivers/net/ethernet/netronome/nfp/bpf/jit.c>linux/drivers/net/ethernet/netronome/nfp/bpf/jit.c</a> for Netronome NFP.</p>
+</li>
+<li>
+<p><a href=https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/net/sched>linux/net/sched/</a> - and in particular in files <code>act_bpf.c</code> (action) and <code>cls_bpf.c</code> (filter): code related to BPF actions and filters with TC.</p>
+</li>
+<li>
+<p><a href=https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/kernel/seccomp.c>linux/kernel/seccomp.c</a></p>
+</li>
+<li>
+<p><a href=https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/net/core/dev.c>linux/net/core/dev.c</a> - contains the function <code>dev_change_xdp_fd()</code> that is called through a Netlink command to hook a XDP program to a device, after is has been loaded into the kernel from user space. This function in turns uses a callback from the relevant driver.</p>
+</li>
+</ul>
+<h2 id=10-development-and-community>10. Development and Community</h2>
+<ul>
+<li><a href=https://git.kernel.org/pub/scm/linux/kernel/git/bpf/bpf-next.git/>The bpf-next tree</a> - BPF patches land in this tree. It is regularly merged into <a href=https://git.kernel.org/pub/scm/linux/kernel/git/davem/net-next.git>net-next</a>, which is itself merged for each release to Linus' tree.</li>
+<li><a href=https://git.kernel.org/pub/scm/linux/kernel/git/davem/net-next.git/tree/Documentation/bpf/bpf_devel_QA.rst>Kernel documentation</a> - About contributions to BPF.</li>
+<li><a href=http://lists.openwall.net/netdev/>The netdev mailing list</a> - Mailing list for Linux kernel networking stack development. All patches are sent there for review and inclusion.</li>
+<li><a href=http://vger.kernel.org/vger-lists.html#xdp-newbies>XDP-newbies</a> - A mailing list specially dedicated to XDP programming (both for architecture or for asking for help).</li>
+<li><a href=http://lists.iovisor.org/pipermail/iovisor-dev/>IO Visor mailing list</a> - BPF is at the heart of the project, and is regularly discussed on the mailing list.</li>
+<li><a href=https://twitter.com/IOVisor>@IOVisor Twitter account</a></li>
+<li><a href=https://github.com/xdp-project/xdp-project>The XDP Collaboration Project</a> - A GitHub repository with notes and ideas regarding the future evolutions of XDP.</li>
+</ul>
+<h2 id=11-other-lists-of-resources-on-ebpf>11. Other Lists of Resources on eBPF</h2>
+<ul>
+<li><a href=https://github.com/iovisor/bcc/tree/master/docs>IO Visor&rsquo;s bcc documentation</a></li>
+<li><a href=https://github.com/iovisor/bpf-docs/>IO Visor&rsquo;s bpf-docs repository</a></li>
+<li><a href=https://qmonnet.github.io/whirl-offload/2016/09/01/dive-into-bpf/>Dive into BPF: A List of Reading Material</a></li>
+</ul>
+<h2 id=12-acknowledgement>12. Acknowledgement</h2>
+<p>Thank you to Quentin Monnet and Daniel Borkmann for their original work on <a href=https://qmonnet.github.io/whirl-offload/2016/09/01/dive-into-bpf/>Dive into BPF: A List of Reading Material</a> which became the basis for this list.</p>
+<h2 id=13-contributing>13. Contributing</h2>
+<p>Contributions welcome! Read the <a href=contributing.md>contribution guidelines</a> first.</p>
+<p>From: <a href=https://github.com/sindresorhus/awesome>https://github.com/sindresorhus/awesome</a></p>
+</div>
+<div class=post-copyright>
+<p class=copyright-item>
+<span class=item-title>Author</span>
+<span class=item-content>Dave</span>
+</p>
+<p class=copyright-item>
+<span class=item-title>LastMod</span>
+<span class=item-content>
+2022-03-26
+</span>
+</p>
+</div>
+<footer class=post-footer>
+<div class=post-tags>
+<a href=/tags/ebpf/>ebpf</a>
+<a href=/tags/beginner/>beginner</a>
+</div>
+<nav class=post-nav>
+<a class=prev href=/post/dive_into_ebpf_read_list/>
+<i class="iconfont icon-left"></i>
+<span class="prev-text nav-default">Dive into BPF: a list of reading material</span>
+<span class="prev-text nav-mobile">Prev</span>
+</a>
+<a class=next href=/post/what_is_ebpf/>
+<span class="next-text nav-default">What is eBPF?</span>
+<span class="next-text nav-mobile">Next</span>
+<i class="iconfont icon-right"></i>
+</a>
+</nav>
+</footer>
+</article>
+</div>
+<div id=disqus_thread></div>
+<script type=text/javascript>(function(){var a,b;if(window.location.hostname==='localhost')return;a=document.createElement('script'),a.type='text/javascript',a.async=!0,b='david',a.src='//'+b+'.disqus.com/embed.js',(document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(a)})()</script>
+<noscript>Please enable JavaScript to view the <a href=http://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript>
+</div>
+</main>
+<footer id=footer class=footer>
+<div class=social-links>
+<a href=https://github.com/awesome-ebpf class="iconfont icon-github" title=github></a>
+<a href=http://localhost:1313/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a>
+</div>
+<div class=copyright>
+<span class=power-by>
+Powered by <a class=hexo-link href=https://gohugo.io>Hugo</a>
+</span>
+<span class=division>|</span>
+<span class=theme-info>
+Theme -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a>
+</span>
+<span class=copyright-year>
+&copy;
+2017 -
+2022<span class=heart><i class="iconfont icon-heart"></i></span><span>Dave</span>
+</span>
+</div>
+</footer>
+<div class=back-to-top id=back-to-top>
+<i class="iconfont icon-up"></i>
+</div>
+</div>
+<script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script>
+<script type=text/javascript src=/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js></script>
+</body>
+</html>

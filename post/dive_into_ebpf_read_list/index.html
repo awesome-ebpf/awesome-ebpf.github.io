@@ -12,6 +12,8 @@
 <meta name=apple-mobile-web-app-capable content="yes">
 <meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2806255399860723" crossorigin=anonymous></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1VNNF72R18"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date),gtag('config','G-1VNNF72R18')</script>
 <meta name=author content="Quentin Monnet"><meta name=description content="BPF, as in Berkeley Packet Filter, was initially conceived in 1992 so as to provide a way to filter packets and to avoid useless packet copies from kernel to userspace. It initially consisted in a simple bytecode that is injected from userspace into the kernel, where it is checked by a verifier—to prevent kernel crashes or security issues—and attached to a socket, then run on each received packet."><meta name=keywords content="ebpf,cilium">
 <meta name=generator content="Hugo 0.86.1 with theme even">
 <link rel=canonical href=http://ebpf.xyz/post/dive_into_ebpf_read_list/>
@@ -31,7 +33,7 @@
 <meta itemprop=name content="Dive into BPF: a list of reading material">
 <meta itemprop=description content="BPF, as in Berkeley Packet Filter, was initially conceived in 1992 so as to provide a way to filter packets and to avoid useless packet copies from kernel to userspace. It initially consisted in a simple bytecode that is injected from userspace into the kernel, where it is checked by a verifier—to prevent kernel crashes or security issues—and attached to a socket, then run on each received packet."><meta itemprop=datePublished content="2022-03-26T11:25:58+08:00">
 <meta itemprop=dateModified content="2022-03-26T11:25:58+08:00">
-<meta itemprop=wordCount content="7237">
+<meta itemprop=wordCount content="7241">
 <meta itemprop=keywords content="ebpf,beginner,"><meta name=twitter:card content="summary">
 <meta name=twitter:title content="Dive into BPF: a list of reading material">
 <meta name=twitter:description content="BPF, as in Berkeley Packet Filter, was initially conceived in 1992 so as to provide a way to filter packets and to avoid useless packet copies from kernel to userspace. It initially consisted in a simple bytecode that is injected from userspace into the kernel, where it is checked by a verifier—to prevent kernel crashes or security issues—and attached to a socket, then run on each received packet."><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script>
@@ -92,7 +94,7 @@
 <a href=/categories/ebpf/> ebpf </a>
 <a href=/categories/overview/> overview </a>
 </div>
-<span class=more-meta> 7237 words </span>
+<span class=more-meta> 7241 words </span>
 <span class=more-meta> 34 mins read </span>
 </div>
 </header>
@@ -160,6 +162,7 @@
 <div class=post-content>
 <p>Addr：<a href=https://ebpf.xyz/post/dive_into_ebpf_read_list>https://ebpf.xyz/post/dive_into_ebpf_read_list</a></p>
 <p><em>~ <a href=https://github.com/qmonnet/whirl-offload/commits/gh-pages/_posts/2016-09-01-dive-into-bpf.md>Updated</a> 2019-01-10 ~</em></p>
+<p>Chinese: <a href=https://linux.cn/article-9507-1.html>https://linux.cn/article-9507-1.html</a> (older 2017)</p>
 <h1 id=1-what-is-bpf>1. What is BPF?</h1>
 <p>BPF, as in <strong>B</strong>erkeley <strong>P</strong>acket <strong>F</strong>ilter, was initially conceived in 1992 so as to provide a way to filter packets and to avoid useless packet copies from kernel to userspace. It initially consisted in a simple bytecode that is injected from userspace into the kernel, where it is checked by a verifier—to prevent kernel crashes or security issues—and attached to a socket, then run on each received packet. It was ported to Linux a couple of years later, and used for a small number of applications (tcpdump for example). The simplicity of the language as well as the existence of an in-kernel Just-In-Time (JIT) compiling machine for BPF were factors for the excellent performances of this tool.</p>
 <p>Then in 2013, Alexei Starovoitov completely reshaped it, started to add new functionalities and to improve the performances of BPF. This new version is designated as eBPF (for “extended BPF”), while the former becomes cBPF (“classic” BPF). New features such as maps and tail calls appeared. The JIT machines were rewritten. The new language is even closer to native machine language than cBPF was. And also, new attach points in the kernel have been created.</p>
@@ -720,5 +723,7 @@ Theme -
 <script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script>
 <script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script>
 <script type=text/javascript src=/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js></script>
+<script type=application/javascript>var doNotTrack=!1;doNotTrack||(window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga('create','G-1VNNF72R18','auto'),ga('set','anonymizeIp',!0),ga('send','pageview'))</script>
+<script async src=https://www.google-analytics.com/analytics.js></script>
 </body>
 </html>

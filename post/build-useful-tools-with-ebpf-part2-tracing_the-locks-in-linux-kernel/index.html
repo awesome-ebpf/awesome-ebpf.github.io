@@ -1,0 +1,560 @@
+<!doctype html><html lang=en>
+<head>
+<meta charset=utf-8>
+<meta http-equiv=x-ua-compatible content="IE=edge,chrome=1">
+<title>Build Useful Tools With Ebpf Part2 Tracing_the Locks in Linux Kernel - eBPF - the Super Power for Kernel</title>
+<meta name=renderer content="webkit">
+<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta http-equiv=cache-control content="no-transform">
+<meta http-equiv=cache-control content="no-siteapp">
+<meta name=theme-color content="#f8f5ec">
+<meta name=msapplication-navbutton-color content="#f8f5ec">
+<meta name=apple-mobile-web-app-capable content="yes">
+<meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2806255399860723" crossorigin=anonymous></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1VNNF72R18"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date),gtag('config','G-1VNNF72R18')</script>
+<meta name=author content="Prathyush"><meta name=description content="Addr：https://ebpf.xyz/post/build-useful-tools-with-ebpf-part2-tracing_the-locks-in-Linux-kernel
+Linux kernel has different types of locks for synchronization. Spin locks, Semaphores, Futexes are some examples. These locks have different behavior and if they are not used properly, it can create performance degradation. For example, spinlocks have least locking and unlocking times but they waste CPU cycles. Spinlocks are used when the waiting time is known to be small. But if a kernel thread is waiting for a spinlock for a considerable amount of time, CPU time is wasted and system performance will be severely affected."><meta name=keywords content="ebpf,cilium">
+<meta name=generator content="Hugo 0.86.1 with theme even">
+<link rel=canonical href=http://ebpf.xyz/post/build-useful-tools-with-ebpf-part2-tracing_the-locks-in-linux-kernel/>
+<link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
+<link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>
+<link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png>
+<link rel=manifest href=/manifest.json>
+<link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5>
+<link href=/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css rel=stylesheet>
+<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous>
+<meta property="og:title" content="Build Useful Tools With Ebpf Part2 Tracing_the Locks in Linux Kernel">
+<meta property="og:description" content="Addr：https://ebpf.xyz/post/build-useful-tools-with-ebpf-part2-tracing_the-locks-in-Linux-kernel
+Linux kernel has different types of locks for synchronization. Spin locks, Semaphores, Futexes are some examples. These locks have different behavior and if they are not used properly, it can create performance degradation. For example, spinlocks have least locking and unlocking times but they waste CPU cycles. Spinlocks are used when the waiting time is known to be small. But if a kernel thread is waiting for a spinlock for a considerable amount of time, CPU time is wasted and system performance will be severely affected.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="http://ebpf.xyz/post/build-useful-tools-with-ebpf-part2-tracing_the-locks-in-linux-kernel/"><meta property="article:section" content="post">
+<meta property="article:published_time" content="2022-03-29T00:25:47+08:00">
+<meta property="article:modified_time" content="2022-03-29T00:25:47+08:00">
+<meta itemprop=name content="Build Useful Tools With Ebpf Part2 Tracing_the Locks in Linux Kernel">
+<meta itemprop=description content="Addr：https://ebpf.xyz/post/build-useful-tools-with-ebpf-part2-tracing_the-locks-in-Linux-kernel
+Linux kernel has different types of locks for synchronization. Spin locks, Semaphores, Futexes are some examples. These locks have different behavior and if they are not used properly, it can create performance degradation. For example, spinlocks have least locking and unlocking times but they waste CPU cycles. Spinlocks are used when the waiting time is known to be small. But if a kernel thread is waiting for a spinlock for a considerable amount of time, CPU time is wasted and system performance will be severely affected."><meta itemprop=datePublished content="2022-03-29T00:25:47+08:00">
+<meta itemprop=dateModified content="2022-03-29T00:25:47+08:00">
+<meta itemprop=wordCount content="1833">
+<meta itemprop=keywords content="ebpf,beginner,"><meta name=twitter:card content="summary">
+<meta name=twitter:title content="Build Useful Tools With Ebpf Part2 Tracing_the Locks in Linux Kernel">
+<meta name=twitter:description content="Addr：https://ebpf.xyz/post/build-useful-tools-with-ebpf-part2-tracing_the-locks-in-Linux-kernel
+Linux kernel has different types of locks for synchronization. Spin locks, Semaphores, Futexes are some examples. These locks have different behavior and if they are not used properly, it can create performance degradation. For example, spinlocks have least locking and unlocking times but they waste CPU cycles. Spinlocks are used when the waiting time is known to be small. But if a kernel thread is waiting for a spinlock for a considerable amount of time, CPU time is wasted and system performance will be severely affected."><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script>
+<script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]-->
+</head>
+<body>
+<div id=mobile-navbar class=mobile-navbar>
+<div class=mobile-header-logo>
+<a href=/ class=logo>eBPF Pearls</a>
+</div>
+<div class=mobile-navbar-icon>
+<span></span>
+<span></span>
+<span></span>
+</div>
+</div>
+<nav id=mobile-menu class="mobile-menu slideout-menu">
+<ul class=mobile-menu-list>
+<a href=/>
+<li class=mobile-menu-item>Home</li>
+</a><a href=/post/>
+<li class=mobile-menu-item>Archives</li>
+</a><a href=/tags/>
+<li class=mobile-menu-item>Tags</li>
+</a><a href=/categories/>
+<li class=mobile-menu-item>Categories</li>
+</a>
+</ul>
+</nav>
+<div class=container id=mobile-panel>
+<header id=header class=header>
+<div class=logo-wrapper>
+<a href=/ class=logo>eBPF Pearls</a>
+</div>
+<nav class=site-navbar>
+<ul id=menu class=menu>
+<li class=menu-item>
+<a class=menu-item-link href=/>Home</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/post/>Archives</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/tags/>Tags</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/categories/>Categories</a>
+</li>
+</ul>
+</nav>
+</header>
+<main id=main class=main>
+<div class=content-wrapper>
+<div id=content class=content>
+<article class=post>
+<header class=post-header>
+<h1 class=post-title>Build Useful Tools With Ebpf Part2 Tracing_the Locks in Linux Kernel</h1>
+<div class=post-meta>
+<span class=post-time> 2022-03-29 </span>
+<div class=post-category>
+<a href=/categories/ebpf/> ebpf </a>
+<a href=/categories/2019/> 2019 </a>
+<a href=/categories/bcc-ex/> bcc-ex </a>
+</div>
+<span class=more-meta> 1833 words </span>
+<span class=more-meta> 9 mins read </span>
+</div>
+</header>
+<div class=post-toc id=post-toc>
+<h2 class=post-toc-title>Contents</h2>
+<div class=post-toc-content>
+<nav id=TableOfContents>
+<ul>
+<li>
+<ul>
+<li><a href=#lock-contentions>Lock contentions</a></li>
+<li><a href=#read-write-in-linux-kernel>Read-Write in Linux Kernel</a></li>
+<li><a href=#locking-function-of-read-write-locks>Locking function of read-write locks</a></li>
+<li><a href=#tracing-a-locking-event>Tracing a locking event</a></li>
+<li><a href=#code-to-collect-data-from-kernel>Code to collect data from kernel</a></li>
+<li><a href=#an-html-report-to-quickly-pinpoint-contentions>An HTML Report to Quickly Pinpoint Contentions</a></li>
+</ul>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+<div class=post-content>
+<p>Addr：<a href=https://ebpf.xyz/post/build-useful-tools-with-ebpf-part2-tracing_the-locks-in-Linux-kernel>https://ebpf.xyz/post/build-useful-tools-with-ebpf-part2-tracing_the-locks-in-Linux-kernel</a></p>
+<p>Linux kernel has different types of locks for synchronization. Spin locks, Semaphores, Futexes are some examples. These locks have different behavior and if they are not used properly, it can create performance degradation. For example, spinlocks have least locking and unlocking times but they waste CPU cycles. Spinlocks are used when the waiting time is known to be small. But if a kernel thread is waiting for a spinlock for a considerable amount of time, CPU time is wasted and system performance will be severely affected.</p>
+<h2 id=lock-contentions>Lock contentions</h2>
+<p>There can be situations in which threads are waiting for locks for long time periods and the majority of the time is spent on waiting rather than doing useful work. This is a lock contention and it should be avoided. Sometimes these contentions are unforeseen during the development of the system. So it’s very important to quickly identify lock contentions in systems and fix that.</p>
+<p>With the help of eBPF, we can identify contentions in the Linux kernel. In this post, I will explain how to trace all locking operations on read-write locks in the Linux kernel, and see if there is any lock being contented for.</p>
+<h2 id=read-write-in-linux-kernel>Read-Write in Linux Kernel</h2>
+<p>Read-write locks provide simultaneous read access to threads, but when a thread needs to get write access, it gets exclusive access. This type of lock is usually used to protect a data structure which is read by many threads at the same time and modified infrequently.</p>
+<p>In the Linux kernel, there are two types of read-write locks, the one using spinlock and the one using semaphores. We will try to find out the waiting times of kernel threads on read-write locks that use spinlocks.</p>
+<h2 id=locking-function-of-read-write-locks>Locking function of read-write locks</h2>
+<p>Now we need to figure out which function in the Linux kernel will wait on the read-write locks. For simplicity, we will only consider the read lock waiting times. We can list out all the possible kernel functions that eBPF can trace by using the command</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-bash data-lang=bash>$ sudo bpftrace -l
+</code></pre></td></tr></table>
+</div>
+</div><p>We can search for the functions that have read_lock in it by using the command</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-bash data-lang=bash>$ sudo bpftrace -l<span class=p>|</span>grep read_lock
+</code></pre></td></tr></table>
+</div>
+</div><p>This command will give us the output</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-bash data-lang=bash>tracepoint:kprobes:r__raw_read_lock_bcc_15726
+tracepoint:kprobes:p__raw_read_lock_bcc_15726
+kprobe:cpus_read_lock
+kprobe:usermodehelper_read_lock_wait
+kprobe:queued_read_lock_slowpath
+kprobe:__srcu_read_lock
+kprobe:acpi_ut_acquire_read_lock
+kprobe:acpi_ut_release_read_lock
+kprobe:device_links_read_lock
+kprobe:dax_read_lock
+kprobe:_raw_read_lock
+kprobe:_raw_read_lock_bh
+kprobe:_raw_read_lock_irq
+kprobe:_raw_read_lock_irqsave
+kprobe:btrfs_read_lock_root_node
+kprobe:btrfs_assert_tree_read_locked.part.0
+kprobe:btrfs_tree_read_lock
+kprobe:btrfs_tree_read_lock_atomic
+kprobe:btrfs_try_tree_read_lock
+</code></pre></td></tr></table>
+</div>
+</div><p>In this output, the function we are looking for is <em>_raw_read_lock</em>. The actual function for acquiring a read lock in the kernel is read_lock() function, but that function internally calls <em>_raw_read_lock</em>. So it is sufficient to trace the function <em>_raw_read_lock</em>.</p>
+<h2 id=tracing-a-locking-event>Tracing a locking event</h2>
+<p>For finding the waiting time of a thread for a particular read lock acquisition, we have to figure out how much time that thread spent on <em>_raw_read_lock()</em> function call. For this when a thread enters this function, we have to keep track of that time and when the thread returns from that function, we have to record that time also. Then we can find the waiting time as</p>
+<p><em>waiting time = function return timestamp - function entry timestamp</em></p>
+<p>So we need to store the timestamp when a thread enters <em>_raw_read_lock()</em> function for a particular read-write lock. For storing this, we can use the <a href=https://github.com/iovisor/bcc/blob/master/docs/reference_guide.md#2-bpf_hash>BPF_HASH</a> data structure provided by eBPF. It is basically a hash table and we can access items using a key.</p>
+<p>We need to store the timestamp for a particular locking event. So the key we use should be unique for a lock acquire function call. We cannot use the lock address as the key because many threads may try to acquire the same lock. We cannot use the thread id of the thread, because the same thread may acquire different locks. The perfect candidate for the key is the combination of both lock virtual address and the thread id. We can use c structs as key. The key we are going to use is,</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=k>struct</span> <span class=n>key_t</span> <span class=p>{</span>
+    <span class=n>u64</span> <span class=n>pid</span><span class=p>;</span>
+    <span class=n>raw_rwlock_t</span><span class=o>*</span> <span class=n>lock</span><span class=p>;</span>
+<span class=p>};</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Along with the timestamp, we can store some additional information, like the PID, command name, etc so that can identify the process which is waiting for the lock.</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=k>struct</span> <span class=n>data_t</span> <span class=p>{</span>
+    <span class=n>u32</span> <span class=n>pid</span><span class=p>;</span>
+    <span class=n>u32</span> <span class=n>tid</span><span class=p>;</span>
+    <span class=n>u64</span> <span class=n>ts</span><span class=p>;</span>
+    <span class=kt>char</span> <span class=n>comm</span><span class=p>[</span><span class=n>TASK_COMM_LEN</span><span class=p>];</span>
+    <span class=n>u64</span> <span class=n>lock</span><span class=p>;</span>
+    <span class=n>u64</span> <span class=n>lock_time</span><span class=p>;</span>
+    <span class=n>u64</span> <span class=n>present_time</span><span class=p>;</span>
+    <span class=n>u64</span> <span class=n>diff</span><span class=p>;</span>
+    <span class=n>u64</span> <span class=n>stack_id</span><span class=p>;</span>
+    <span class=n>u32</span> <span class=n>lock_count</span><span class=p>;</span>
+<span class=p>};</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>The different fields in the struct are:</p>
+<ol>
+<li>pid: PID of the process</li>
+<li>tid: TID of the thread</li>
+<li>ts: The time at which the thread enters lock acquire</li>
+<li>comm: Name of the process</li>
+<li>lock: Virtual Address of the lock</li>
+<li>lock_time: Time spent waiting on the lock</li>
+<li>present_time: The present timestamp</li>
+<li>diff: The difference between entry time and return time of the lock acquire function</li>
+<li>stack_id: Used to store the stack trace of the lock acquire function call</li>
+<li>lock_count: The number of times this lock was acquired</li>
+</ol>
+<p>Also, we have to declare the data structures for storing this with the following code</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=n>BPF_STACK_TRACE</span><span class=p>(</span><span class=n>stack_traces</span><span class=p>,</span> <span class=mi>102400</span><span class=p>);</span>
+<span class=n>BPF_PERF_OUTPUT</span><span class=p>(</span><span class=n>output</span><span class=p>);</span>
+<span class=n>BPF_HASH</span><span class=p>(</span><span class=n>lock_events</span><span class=p>,</span> <span class=k>struct</span> <span class=n>key_t</span><span class=p>,</span> <span class=k>struct</span> <span class=n>data_t</span><span class=p>,</span> <span class=mi>102400</span><span class=p>);</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>BPF_STACK_TRACE will declare a data structure <a href=https://github.com/iovisor/bcc/blob/master/docs/reference_guide.md#5-bpf_stack_trace>BPF_STACK_TRACE</a> for saving the stack traces</p>
+</li>
+<li>
+<p>BPF_PERF_OUTPUT will create a <a href=https://github.com/iovisor/bcc/blob/master/docs/reference_guide.md#2-bpf_perf_output>perf ring buffer</a> to stream the info to userspace</p>
+</li>
+<li>
+<p>BPF_HASH will create the hashmap <a href=https://github.com/iovisor/bcc/blob/master/docs/reference_guide.md#2-bpf_hash>BPF_HASH</a> to save struct data_t. It uses key_t as key.</p>
+<h2 id=code-to-collect-data-from-kernel>Code to collect data from kernel</h2>
+</li>
+</ul>
+<p>Now we have the data structure to collect information from the kernel. We have to run code in the eBPF virtual machine whenever any thread in the machine enters or leaves <em>_raw_read_lock()</em>. The code to be executed when any thread enters the <em>_raw_read_lock()</em> is :</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=kt>int</span> <span class=nf>lock</span><span class=p>(</span><span class=k>struct</span> <span class=n>pt_regs</span> <span class=o>*</span><span class=n>ctx</span><span class=p>,</span> <span class=n>raw_spinlock_t</span> <span class=o>*</span><span class=n>lock</span><span class=p>)</span> <span class=p>{</span>
+
+    <span class=n>u32</span> <span class=n>current_pid</span> <span class=o>=</span> <span class=n>bpf_get_current_pid_tgid</span><span class=p>();</span>
+        
+    <span class=k>struct</span> <span class=n>data_t</span> <span class=n>data</span> <span class=o>=</span> <span class=p>{};</span>
+    <span class=k>struct</span> <span class=n>key_t</span> <span class=n>key</span> <span class=o>=</span> <span class=p>{</span><span class=n>bpf_get_current_pid_tgid</span><span class=p>(),</span> <span class=n>lock</span><span class=p>};</span>
+    <span class=k>struct</span> <span class=n>data_t</span> <span class=o>*</span><span class=n>data_ptr</span><span class=p>;</span>
+    <span class=n>data_ptr</span> <span class=o>=</span> <span class=n>lock_events</span><span class=p>.</span><span class=n>lookup</span><span class=p>(</span><span class=o>&amp;</span><span class=n>key</span><span class=p>);</span>
+    <span class=k>if</span><span class=p>(</span><span class=n>data_ptr</span><span class=p>)</span>
+    <span class=p>{</span>
+        <span class=n>data_ptr</span><span class=o>-&gt;</span><span class=n>ts</span> <span class=o>=</span> <span class=n>bpf_ktime_get_ns</span><span class=p>();</span>
+        <span class=n>data_ptr</span><span class=o>-&gt;</span><span class=n>lock_count</span> <span class=o>+=</span> <span class=mi>1</span><span class=p>;</span>
+        <span class=n>data_ptr</span><span class=o>-&gt;</span><span class=n>stack_id</span> <span class=o>=</span> <span class=n>stack_traces</span><span class=p>.</span><span class=n>get_stackid</span><span class=p>(</span><span class=n>ctx</span><span class=p>,</span> <span class=n>BPF_F_REUSE_STACKID</span><span class=p>);</span>
+    <span class=p>}</span>
+    <span class=k>else</span>
+    <span class=p>{</span>
+        <span class=n>data</span><span class=p>.</span><span class=n>pid</span> <span class=o>=</span> <span class=n>bpf_get_current_pid_tgid</span><span class=p>();</span>
+        <span class=n>data</span><span class=p>.</span><span class=n>tid</span> <span class=o>=</span> <span class=n>bpf_get_current_pid_tgid</span><span class=p>()</span> <span class=o>&gt;&gt;</span> <span class=mi>32</span><span class=p>;</span>
+        <span class=n>data</span><span class=p>.</span><span class=n>ts</span> <span class=o>=</span> <span class=n>bpf_ktime_get_ns</span><span class=p>();</span>
+        <span class=n>bpf_get_current_comm</span><span class=p>(</span><span class=o>&amp;</span><span class=n>data</span><span class=p>.</span><span class=n>comm</span><span class=p>,</span> <span class=k>sizeof</span><span class=p>(</span><span class=n>data</span><span class=p>.</span><span class=n>comm</span><span class=p>));</span>
+        <span class=n>data</span><span class=p>.</span><span class=n>lock</span> <span class=o>=</span> <span class=p>(</span><span class=n>u64</span><span class=p>)</span><span class=n>lock</span><span class=p>;</span>
+        <span class=n>data</span><span class=p>.</span><span class=n>lock_count</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+        <span class=n>data</span><span class=p>.</span><span class=n>stack_id</span> <span class=o>=</span> <span class=n>stack_traces</span><span class=p>.</span><span class=n>get_stackid</span><span class=p>(</span><span class=n>ctx</span><span class=p>,</span> <span class=n>BPF_F_REUSE_STACKID</span><span class=p>);</span>
+        <span class=n>lock_events</span><span class=p>.</span><span class=n>insert</span><span class=p>(</span><span class=o>&amp;</span><span class=n>key</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>data</span><span class=p>);</span>
+    <span class=p>}</span>
+    <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>This function simply collects the information we need.</p>
+<ul>
+<li><em>bpf_get_current_pid_tgid()</em> function will return the current thread’s pid and tid. It will return a 64-bit integer. Most significant 32 bits represent pid and least significant 32 bits represent the thread id.</li>
+<li><em>lock_events.lookup(&key)</em> function checks if the key is already present in the hash table lock_events. If it is present, it returns a pointer to the struct. If not, it returns NULL.</li>
+<li><em>bpf_ktime_get_ns()</em> function return the current time in nanoseconds.</li>
+<li><em>stack_traces.get_stackid(ctx, BPF_F_REUSE_STACKID)</em> will get the stack trace of the function call and saves its id in stack_traces. We are not using it right now.</li>
+<li><em>bpf_get_current_comm()</em> will fetch the name of the thread</li>
+</ul>
+<p>The code to be executed when the function return is,</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=kt>int</span> <span class=nf>release</span><span class=p>(</span><span class=k>struct</span> <span class=n>pt_regs</span> <span class=o>*</span><span class=n>ctx</span><span class=p>,</span> <span class=n>raw_spinlock_t</span> <span class=o>*</span><span class=n>lock</span><span class=p>)</span> <span class=p>{</span>
+    <span class=n>u64</span> <span class=n>present</span> <span class=o>=</span> <span class=n>bpf_ktime_get_ns</span><span class=p>();</span>
+    
+    <span class=n>u32</span> <span class=n>current_pid</span> <span class=o>=</span> <span class=n>bpf_get_current_pid_tgid</span><span class=p>();</span>
+        
+    <span class=k>struct</span> <span class=n>data_t</span> <span class=o>*</span><span class=n>data</span><span class=p>;</span>
+    <span class=k>struct</span> <span class=n>key_t</span> <span class=n>key</span> <span class=o>=</span> <span class=p>{</span><span class=n>bpf_get_current_pid_tgid</span><span class=p>(),</span> <span class=n>lock</span><span class=p>};</span>
+    <span class=n>data</span> <span class=o>=</span> <span class=n>lock_events</span><span class=p>.</span><span class=n>lookup</span><span class=p>(</span><span class=o>&amp;</span><span class=n>key</span><span class=p>);</span>
+    <span class=k>if</span><span class=p>(</span><span class=n>data</span><span class=p>)</span>
+    <span class=p>{</span>
+        <span class=n>data</span><span class=o>-&gt;</span><span class=n>lock_time</span> <span class=o>+=</span> <span class=p>(</span><span class=n>present</span> <span class=o>-</span> <span class=n>data</span><span class=o>-&gt;</span><span class=n>ts</span><span class=p>);</span>
+        <span class=n>data</span><span class=o>-&gt;</span><span class=n>present_time</span> <span class=o>=</span> <span class=n>present</span><span class=p>;</span>
+        <span class=n>data</span><span class=o>-&gt;</span><span class=n>diff</span> <span class=o>=</span> <span class=n>present</span> <span class=o>-</span> <span class=n>data</span><span class=o>-&gt;</span><span class=n>ts</span><span class=p>;</span>
+        <span class=n>data</span><span class=o>-&gt;</span><span class=n>type</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+        <span class=n>output</span><span class=p>.</span><span class=n>perf_submit</span><span class=p>(</span><span class=n>ctx</span><span class=p>,</span> <span class=n>data</span><span class=p>,</span> <span class=k>sizeof</span><span class=p>(</span><span class=k>struct</span> <span class=n>data_t</span><span class=p>));</span>
+    <span class=p>}</span>
+    <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>This function retrieves the structure saved in the hashmap when the thread enters the lock acquire function. Calculate the waiting time and then it will stream the information to the <a href=https://github.com/iovisor/bcc/blob/master/docs/reference_guide.md#2-bpf_perf_output>perf ring buffer</a> <em>output</em>.</p>
+<p>The above code has to be compiled and inserted to the eBPF virtual machine. For this, we can use the bcc python library. If we save the above code in a python string prog, the python code will be:</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=kn>from</span> <span class=nn>__future__</span> <span class=kn>import</span> <span class=n>print_function</span>
+<span class=kn>from</span> <span class=nn>bcc</span> <span class=kn>import</span> <span class=n>BPF</span>
+<span class=kn>import</span> <span class=nn>datetime</span>
+
+
+<span class=k>def</span> <span class=nf>print_event</span><span class=p>(</span><span class=n>cpu</span><span class=p>,</span> <span class=n>data</span><span class=p>,</span> <span class=n>size</span><span class=p>):</span>
+    <span class=k>global</span> <span class=n>start</span>
+    <span class=n>event</span> <span class=o>=</span> <span class=n>b</span><span class=p>[</span><span class=s1>&#39;output&#39;</span><span class=p>]</span><span class=o>.</span><span class=n>event</span><span class=p>(</span><span class=n>data</span><span class=p>)</span>
+    <span class=c1># for lock in locks:</span>
+    <span class=k>if</span> <span class=n>start</span> <span class=o>==</span> <span class=mi>0</span><span class=p>:</span>
+        <span class=n>start</span> <span class=o>=</span> <span class=n>event</span><span class=o>.</span><span class=n>ts</span>
+    <span class=n>time_s</span> <span class=o>=</span> <span class=p>(</span><span class=nb>float</span><span class=p>(</span><span class=n>event</span><span class=o>.</span><span class=n>ts</span> <span class=o>-</span> <span class=n>start</span><span class=p>))</span> <span class=o>/</span> <span class=mi>1000000000</span>
+    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;</span><span class=si>%-18.9f</span><span class=s2> </span><span class=si>%-16s</span><span class=s2> </span><span class=si>%-6d</span><span class=s2> </span><span class=si>%-6d</span><span class=s2> </span><span class=si>%-6d</span><span class=s2> </span><span class=si>%-6f</span><span class=s2> </span><span class=si>%-15f</span><span class=s2> </span><span class=si>%-6d</span><span class=s2>&#34;</span> <span class=o>%</span> <span class=p>(</span><span class=n>time_s</span><span class=p>,</span> <span class=n>event</span><span class=o>.</span><span class=n>comm</span><span class=p>,</span> <span class=n>event</span><span class=o>.</span><span class=n>pid</span><span class=p>,</span> <span class=n>event</span><span class=o>.</span><span class=n>tid</span><span class=p>,</span>
+                                                                 <span class=n>event</span><span class=o>.</span><span class=n>lock</span><span class=p>,</span>
+                                                                 <span class=p>(</span><span class=nb>float</span><span class=p>(</span><span class=n>event</span><span class=o>.</span><span class=n>present_time</span> <span class=o>-</span> <span class=n>start</span><span class=p>))</span> <span class=o>/</span> <span class=mi>1000000000</span><span class=p>,</span>
+                                                                 <span class=n>event</span><span class=o>.</span><span class=n>lock_time</span><span class=p>,</span> <span class=n>event</span><span class=o>.</span><span class=n>diff</span><span class=p>))</span>
+
+<span class=n>b</span> <span class=o>=</span> <span class=n>BPF</span><span class=p>(</span><span class=n>text</span><span class=o>=</span><span class=n>prog</span><span class=p>)</span>
+<span class=n>b</span><span class=o>.</span><span class=n>attach_kprobe</span><span class=p>(</span><span class=n>event</span><span class=o>=</span><span class=s2>&#34;_raw_read_lock&#34;</span><span class=p>,</span> <span class=n>fn_name</span><span class=o>=</span><span class=s2>&#34;lock&#34;</span><span class=p>)</span>
+<span class=n>b</span><span class=o>.</span><span class=n>attach_kretprobe</span><span class=p>(</span><span class=n>event</span><span class=o>=</span><span class=s2>&#34;_raw_read_lock&#34;</span><span class=p>,</span> <span class=n>fn_name</span><span class=o>=</span><span class=s2>&#34;release&#34;</span><span class=p>)</span>
+
+<span class=nb>print</span><span class=p>(</span><span class=s2>&#34;Tracing locks for </span><span class=si>%d</span><span class=s2> seconds&#34;</span> <span class=o>%</span> <span class=mi>10</span><span class=p>)</span>
+
+<span class=c1># process event</span>
+<span class=n>start</span> <span class=o>=</span> <span class=mi>0</span>
+
+<span class=c1># loop with callback to print_event</span>
+<span class=n>b</span><span class=p>[</span><span class=s1>&#39;output&#39;</span><span class=p>]</span><span class=o>.</span><span class=n>open_perf_buffer</span><span class=p>(</span><span class=n>print_event</span><span class=p>)</span>
+<span class=n>start_time</span> <span class=o>=</span> <span class=n>datetime</span><span class=o>.</span><span class=n>datetime</span><span class=o>.</span><span class=n>now</span><span class=p>()</span>
+
+<span class=k>while</span> <span class=mi>1</span><span class=p>:</span>
+    <span class=n>b</span><span class=o>.</span><span class=n>perf_buffer_poll</span><span class=p>()</span>
+    <span class=n>time_elapsed</span> <span class=o>=</span> <span class=n>datetime</span><span class=o>.</span><span class=n>datetime</span><span class=o>.</span><span class=n>now</span><span class=p>()</span> <span class=o>-</span> <span class=n>start_time</span>
+    <span class=k>if</span> <span class=n>time_elapsed</span><span class=o>.</span><span class=n>seconds</span> <span class=o>&gt;</span> <span class=mi>5</span><span class=p>:</span>
+        <span class=n>exit</span><span class=p>()</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>b = BPF(text=prog): This will create an object of BPF. The code to be executed has to be passed as a string to the constructor</li>
+<li>b.attach_kprobe(event=”_raw_read_lock”, fn_name=”lock”): This line will attach our function lock to the start of kernel function _raw_read_lock.</li>
+<li>b.attach_kretprobe(event=”_raw_read_lock”, fn_name=”release”): This line will attach our function release to the end of kernel function _raw_read_lock.</li>
+<li>b[‘output’].open_perf_buffer(print_event): This line will tell the library to execute the function print_event when a new element is added to the perf ring buffer.</li>
+<li>The wile loop will poll the perf buffer for 10 seconds.</li>
+<li>print_event function will extract details from the ring buffer and display it on the terminal. We will get the c structure data_t as a python object. We can access the member of struct using the dot operator.</li>
+</ul>
+<p>When everything is put together, the final script is: <a href=https://gist.github.com/prathyushpv/f12d0f7e6b3acb8a3388fb00c0c12152>lockstat.py · GitHub</a></p>
+<p>This script will track individual wait times of all locking operations and displays it on the terminal. But from this information, we will not be able to identify the locks that are contented for easily. For this, we need to process the data we are extracting and should display it in a way that is more useful.</p>
+<h2 id=an-html-report-to-quickly-pinpoint-contentions>An HTML Report to Quickly Pinpoint Contentions</h2>
+<p>Now we have individual lock waiting times for all locking operations. What we want to figure out is, which locks are heavily contented. For this, we have to add up the waiting times of individual locks and display the total waiting times.</p>
+<p>Also, it would be better if we plot a bar chart of all locks. It will be easy to figure out if any locks are heavily contented than others by looking at the height of the bars.</p>
+<p>So we have to display the following things in the HTML report</p>
+<ul>
+<li>A table containing the totals wait times of each lock in sorted order of waiting times</li>
+<li>A bar diagram showing the waiting times of all locks.</li>
+</ul>
+<p>Also if we want to monitor different types of locks in the kernel, you can add other tables and graphs to the report.</p>
+<p>Creating a report from the data we have collected is a straight forward process. We can use the jinja2 module in python to get this task done. I have uploaded the complete code in the repository : <a href=https://github.com/prathyushpv/lockstat>GitHub - prathyushpv/lockstat: A tool based on eBPF to find out scalability bottlenecks in kernel.</a></p>
+</div>
+<div class=post-copyright>
+<p class=copyright-item>
+<span class=item-title>Author</span>
+<span class=item-content>Prathyush</span>
+</p>
+<p class=copyright-item>
+<span class=item-title>LastMod</span>
+<span class=item-content>
+2022-03-29
+</span>
+</p>
+</div>
+<footer class=post-footer>
+<div class=post-tags>
+<a href=/tags/ebpf/>ebpf</a>
+<a href=/tags/beginner/>beginner</a>
+</div>
+<nav class=post-nav>
+<a class=next href=/post/build-useful-tools-with-ebpf-part1-setup-bcc/>
+<span class="next-text nav-default">Build Useful Tools With Ebpf Part1 Setup Bcc</span>
+<span class="next-text nav-mobile">Next</span>
+<i class="iconfont icon-right"></i>
+</a>
+</nav>
+</footer>
+</article>
+</div>
+<div id=disqus_thread></div>
+<script type=text/javascript>(function(){var a,b;if(window.location.hostname==='localhost')return;a=document.createElement('script'),a.type='text/javascript',a.async=!0,b='david',a.src='//'+b+'.disqus.com/embed.js',(document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(a)})()</script>
+<noscript>Please enable JavaScript to view the <a href=http://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript>
+</div>
+</main>
+<footer id=footer class=footer>
+<div class=social-links>
+<a href=https://github.com/awesome-ebpf class="iconfont icon-github" title=github></a>
+<a href=http://ebpf.xyz/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a>
+</div>
+<div class=copyright>
+<span class=power-by>
+Powered by <a class=hexo-link href=https://gohugo.io>Hugo</a>
+</span>
+<span class=division>|</span>
+<span class=theme-info>
+Theme -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a>
+</span>
+<span class=copyright-year>
+&copy;
+2017 -
+2022<span class=heart><i class="iconfont icon-heart"></i></span><span>Dave</span>
+</span>
+</div>
+</footer>
+<div class=back-to-top id=back-to-top>
+<i class="iconfont icon-up"></i>
+</div>
+</div>
+<script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script>
+<script type=text/javascript src=/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js></script>
+</body>
+</html>

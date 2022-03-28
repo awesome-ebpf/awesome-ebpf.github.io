@@ -85,12 +85,137 @@
 <section id=posts class=posts>
 <article class=post>
 <header class=post-header>
+<h1 class=post-title><a class=post-link href=/post/build-useful-tools-with-ebpf-part2-tracing_the-locks-in-linux-kernel/>Build Useful Tools With Ebpf Part2 Tracing_the Locks in Linux Kernel</a></h1>
+<div class=post-meta>
+<span class=post-time> 2022-03-29 </span>
+<div class=post-category>
+<a href=/categories/ebpf/> ebpf </a>
+<a href=/categories/2019/> 2019 </a>
+<a href=/categories/bcc-ex/> bcc-ex </a>
+</div>
+<span class=more-meta> 1833 words </span>
+<span class=more-meta> 9 mins read </span>
+</div>
+</header>
+<div class=post-content>
+<div class=post-summary>
+Addr：https://ebpf.xyz/post/build-useful-tools-with-ebpf-part2-tracing_the-locks-in-Linux-kernel
+Linux kernel has different types of locks for synchronization. Spin locks, Semaphores, Futexes are some examples. These locks have different behavior and if they are not used properly, it can create performance degradation. For example, spinlocks have least locking and unlocking times but they waste CPU cycles. Spinlocks are used when the waiting time is known to be small. But if a kernel thread is waiting for a spinlock for a considerable amount of time, CPU time is wasted and system performance will be severely affected.
+</div>
+<div class=read-more>
+<a href=/post/build-useful-tools-with-ebpf-part2-tracing_the-locks-in-linux-kernel/ class=read-more-link>Read more...</a>
+</div>
+</div>
+</article>
+<article class=post>
+<header class=post-header>
+<h1 class=post-title><a class=post-link href=/post/build-useful-tools-with-ebpf-part1-setup-bcc/>Build Useful Tools With Ebpf Part1 Setup Bcc</a></h1>
+<div class=post-meta>
+<span class=post-time> 2022-03-29 </span>
+<div class=post-category>
+<a href=/categories/ebpf/> ebpf </a>
+<a href=/categories/2019/> 2019 </a>
+<a href=/categories/bcc-ex/> bcc-ex </a>
+</div>
+<span class=more-meta> 795 words </span>
+<span class=more-meta> 4 mins read </span>
+</div>
+</header>
+<div class=post-content>
+<div class=post-summary>
+Addr：https://ebpf.xyz/post/build-useful-tools-with-ebpf-part1-setup-bcc
+eBPF is an in kernel virtual machine in linux. It can execute user supplied code in a sandboxed environment inside the kernel. It can be used in different ways to achieve different goals. Most usefull and interesting application of eBPF is dynamic tracing.
+eBPF eBPF, which was introduced from linux kernel 3.18, has brought DTrace like features to the kernel. eBPF is an in kernel virtual machine in linux kernel which can run user supplied code.
+</div>
+<div class=read-more>
+<a href=/post/build-useful-tools-with-ebpf-part1-setup-bcc/ class=read-more-link>Read more...</a>
+</div>
+</div>
+</article>
+<article class=post>
+<header class=post-header>
+<h1 class=post-title><a class=post-link href=/post/klock-stat/>Klock Stat</a></h1>
+<div class=post-meta>
+<span class=post-time> 2022-03-29 </span>
+<div class=post-category>
+<a href=/categories/ebpf/> ebpf </a>
+<a href=/categories/2019/> 2019 </a>
+<a href=/categories/bcc-ex/> bcc-ex </a>
+</div>
+<span class=more-meta> 2328 words </span>
+<span class=more-meta> 11 mins read </span>
+</div>
+</header>
+<div class=post-content>
+<div class=post-summary>
+Addr：https://ebpf.xyz/post/klock-stat
+kLockStat: An eBPF Tool To Monitor Linux Kernel Lock Contentions APRIL 30, 2019
+Today most of the applications are multithreaded. Parallelism improves performance of applications. But there can be scalability bottlenecks inside the kernel. There are studies that exposes such bottlenecks in linux kernel. Even if the application is written in a perfectly scalable fasion, sometimes the bottlenecks inside the kernel prevent the application from scaling to a large number of processors.
+</div>
+<div class=read-more>
+<a href=/post/klock-stat/ class=read-more-link>Read more...</a>
+</div>
+</div>
+</article>
+<article class=post>
+<header class=post-header>
+<h1 class=post-title><a class=post-link href=/post/performanc_tracing_with_bpf/>Performanc Tracing with BPF</a></h1>
+<div class=post-meta>
+<span class=post-time> 2022-03-28 </span>
+<div class=post-category>
+<a href=/categories/ebpf/> ebpf </a>
+<a href=/categories/overview/> overview </a>
+<a href=/categories/2021/> 2021 </a>
+<a href=/categories/tracing/> tracing </a>
+</div>
+<span class=more-meta> 302 words </span>
+<span class=more-meta> 2 mins read </span>
+</div>
+</header>
+<div class=post-content>
+<div class=post-summary>
+Addr：https://ebpf.xyz/post/performanc_tracing_with_bpf
+#the-canvas { border: 1px solid black; direction: ltr; width: 100%; height: auto; display: none; } #paginator { display: none; text-align: center; margin-bottom: 10px; } #loadingWrapper { display: none; justify-content: center; align-items: center; width: 100%; height: 350px; } #loading { display: inline-block; width: 50px; height: 50px; border: 3px solid #d2d0d0;; border-radius: 50%; border-top-color: #383838; animation: spin 1s ease-in-out infinite; -webkit-animation: spin 1s ease-in-out infinite; } @keyframes spin { to { -webkit-transform: rotate(360deg); } } @-webkit-keyframes spin { to { -webkit-transform: rotate(360deg); } } Previous Next &nbsp; &nbsp; Page: / window.
+</div>
+<div class=read-more>
+<a href=/post/performanc_tracing_with_bpf/ class=read-more-link>Read more...</a>
+</div>
+</div>
+</article>
+<article class=post>
+<header class=post-header>
+<h1 class=post-title><a class=post-link href=/post/concurrency-management-in-bpf/>Concurrency Management in BPF</a></h1>
+<div class=post-meta>
+<span class=post-time> 2022-03-28 </span>
+<div class=post-category>
+<a href=/categories/ebpf/> ebpf </a>
+<a href=/categories/map/> map </a>
+<a href=/categories/concurrency/> concurrency </a>
+<a href=/categories/2019/> 2019 </a>
+</div>
+<span class=more-meta> 1312 words </span>
+<span class=more-meta> 7 mins read </span>
+</div>
+</header>
+<div class=post-content>
+<div class=post-summary>
+Addr：https://ebpf.xyz/post/concurrency-management-in-bpf
+In the beginning, programs run on the in-kernel BPF virtual machine had no persistent internal state and no data that was shared with any other part of the system. The arrival of eBPF and, in particular, its maps functionality, has changed that situation, though, since a map can be shared between two or more BPF programs as well as with processes running in user space. That sharing naturally leads to concurrency problems, so the BPF developers have found themselves needing to add primitives to manage concurrency (the &ldquo;exchange and add&rdquo; or XADD instruction, for example).
+</div>
+<div class=read-more>
+<a href=/post/concurrency-management-in-bpf/ class=read-more-link>Read more...</a>
+</div>
+</div>
+</article>
+<article class=post>
+<header class=post-header>
 <h1 class=post-title><a class=post-link href=/post/dive_into_ebpf_read_list/>Dive into BPF: a list of reading material</a></h1>
 <div class=post-meta>
 <span class=post-time> 2022-03-26 </span>
 <div class=post-category>
 <a href=/categories/ebpf/> ebpf </a>
 <a href=/categories/overview/> overview </a>
+<a href=/categories/2019/> 2019 </a>
 </div>
 <span class=more-meta> 7241 words </span>
 <span class=more-meta> 34 mins read </span>
@@ -116,6 +241,7 @@ Chinese: https://linux.cn/article-9507-1.html (older 2017)
 <div class=post-category>
 <a href=/categories/ebpf/> ebpf </a>
 <a href=/categories/overview/> overview </a>
+<a href=/categories/2022/> 2022 </a>
 </div>
 <span class=more-meta> 4151 words </span>
 <span class=more-meta> 20 mins read </span>
@@ -140,6 +266,7 @@ BPF, as in Berkeley Packet Filter, is an in-kernel virtual machine running progr
 <div class=post-category>
 <a href=/categories/ebpf/> ebpf </a>
 <a href=/categories/overview/> overview </a>
+<a href=/categories/2019/> 2019 </a>
 </div>
 <span class=more-meta> 2850 words </span>
 <span class=more-meta> 14 mins read </span>

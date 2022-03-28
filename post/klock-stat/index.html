@@ -1,0 +1,470 @@
+<!doctype html><html lang=en>
+<head>
+<meta charset=utf-8>
+<meta http-equiv=x-ua-compatible content="IE=edge,chrome=1">
+<title>Klock Stat - eBPF - the Super Power for Kernel</title>
+<meta name=renderer content="webkit">
+<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta http-equiv=cache-control content="no-transform">
+<meta http-equiv=cache-control content="no-siteapp">
+<meta name=theme-color content="#f8f5ec">
+<meta name=msapplication-navbutton-color content="#f8f5ec">
+<meta name=apple-mobile-web-app-capable content="yes">
+<meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2806255399860723" crossorigin=anonymous></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1VNNF72R18"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date),gtag('config','G-1VNNF72R18')</script>
+<meta name=author content="Prathyush"><meta name=description content="Addr：https://ebpf.xyz/post/klock-stat
+kLockStat: An eBPF Tool To Monitor Linux Kernel Lock Contentions APRIL 30, 2019
+Today most of the applications are multithreaded. Parallelism improves performance of applications. But there can be scalability bottlenecks inside the kernel. There are studies that exposes such bottlenecks in linux kernel. Even if the application is written in a perfectly scalable fasion, sometimes the bottlenecks inside the kernel prevent the application from scaling to a large number of processors."><meta name=keywords content="ebpf,cilium">
+<meta name=generator content="Hugo 0.86.1 with theme even">
+<link rel=canonical href=http://ebpf.xyz/post/klock-stat/>
+<link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
+<link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>
+<link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png>
+<link rel=manifest href=/manifest.json>
+<link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5>
+<link href=/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css rel=stylesheet>
+<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous>
+<meta property="og:title" content="Klock Stat">
+<meta property="og:description" content="Addr：https://ebpf.xyz/post/klock-stat
+kLockStat: An eBPF Tool To Monitor Linux Kernel Lock Contentions APRIL 30, 2019
+Today most of the applications are multithreaded. Parallelism improves performance of applications. But there can be scalability bottlenecks inside the kernel. There are studies that exposes such bottlenecks in linux kernel. Even if the application is written in a perfectly scalable fasion, sometimes the bottlenecks inside the kernel prevent the application from scaling to a large number of processors.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="http://ebpf.xyz/post/klock-stat/"><meta property="article:section" content="post">
+<meta property="article:published_time" content="2022-03-29T00:13:09+08:00">
+<meta property="article:modified_time" content="2022-03-29T00:13:09+08:00">
+<meta itemprop=name content="Klock Stat">
+<meta itemprop=description content="Addr：https://ebpf.xyz/post/klock-stat
+kLockStat: An eBPF Tool To Monitor Linux Kernel Lock Contentions APRIL 30, 2019
+Today most of the applications are multithreaded. Parallelism improves performance of applications. But there can be scalability bottlenecks inside the kernel. There are studies that exposes such bottlenecks in linux kernel. Even if the application is written in a perfectly scalable fasion, sometimes the bottlenecks inside the kernel prevent the application from scaling to a large number of processors."><meta itemprop=datePublished content="2022-03-29T00:13:09+08:00">
+<meta itemprop=dateModified content="2022-03-29T00:13:09+08:00">
+<meta itemprop=wordCount content="2328">
+<meta itemprop=keywords content="ebpf,beginner,"><meta name=twitter:card content="summary">
+<meta name=twitter:title content="Klock Stat">
+<meta name=twitter:description content="Addr：https://ebpf.xyz/post/klock-stat
+kLockStat: An eBPF Tool To Monitor Linux Kernel Lock Contentions APRIL 30, 2019
+Today most of the applications are multithreaded. Parallelism improves performance of applications. But there can be scalability bottlenecks inside the kernel. There are studies that exposes such bottlenecks in linux kernel. Even if the application is written in a perfectly scalable fasion, sometimes the bottlenecks inside the kernel prevent the application from scaling to a large number of processors."><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script>
+<script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]-->
+</head>
+<body>
+<div id=mobile-navbar class=mobile-navbar>
+<div class=mobile-header-logo>
+<a href=/ class=logo>eBPF Pearls</a>
+</div>
+<div class=mobile-navbar-icon>
+<span></span>
+<span></span>
+<span></span>
+</div>
+</div>
+<nav id=mobile-menu class="mobile-menu slideout-menu">
+<ul class=mobile-menu-list>
+<a href=/>
+<li class=mobile-menu-item>Home</li>
+</a><a href=/post/>
+<li class=mobile-menu-item>Archives</li>
+</a><a href=/tags/>
+<li class=mobile-menu-item>Tags</li>
+</a><a href=/categories/>
+<li class=mobile-menu-item>Categories</li>
+</a>
+</ul>
+</nav>
+<div class=container id=mobile-panel>
+<header id=header class=header>
+<div class=logo-wrapper>
+<a href=/ class=logo>eBPF Pearls</a>
+</div>
+<nav class=site-navbar>
+<ul id=menu class=menu>
+<li class=menu-item>
+<a class=menu-item-link href=/>Home</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/post/>Archives</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/tags/>Tags</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/categories/>Categories</a>
+</li>
+</ul>
+</nav>
+</header>
+<main id=main class=main>
+<div class=content-wrapper>
+<div id=content class=content>
+<article class=post>
+<header class=post-header>
+<h1 class=post-title>Klock Stat</h1>
+<div class=post-meta>
+<span class=post-time> 2022-03-29 </span>
+<div class=post-category>
+<a href=/categories/ebpf/> ebpf </a>
+<a href=/categories/2019/> 2019 </a>
+<a href=/categories/bcc-ex/> bcc-ex </a>
+</div>
+<span class=more-meta> 2328 words </span>
+<span class=more-meta> 11 mins read </span>
+</div>
+</header>
+<div class=post-toc id=post-toc>
+<h2 class=post-toc-title>Contents</h2>
+<div class=post-toc-content>
+<nav id=TableOfContents>
+<ul>
+<li><a href=#klockstat-an-ebpf-tool-to-monitor-linux-kernel-lock-contentions>kLockStat: An eBPF Tool To Monitor Linux Kernel Lock Contentions</a>
+<ul>
+<li><a href=#table-of-contents>Table of Contents</a></li>
+<li><a href=#background>Background</a>
+<ul>
+<li><a href=#ebpf>eBPF</a></li>
+<li><a href=#bcc>BCC</a></li>
+</ul>
+</li>
+<li><a href=#klockstat-design>kLockStat Design</a>
+<ul>
+<li><a href=#instrumentation>Instrumentation</a></li>
+<li><a href=#user-space-process>User Space Process</a></li>
+</ul>
+</li>
+<li><a href=#implementation>Implementation</a>
+<ul>
+<li><a href=#data-structures>Data Structures</a></li>
+<li><a href=#instrumentation-details>Instrumentation Details</a></li>
+<li><a href=#considering-the-locking-overhead>Considering the locking overhead</a></li>
+<li><a href=#report-generation>Report Generation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+<div class=post-content>
+<p>Addr：<a href=https://ebpf.xyz/post/klock-stat>https://ebpf.xyz/post/klock-stat</a></p>
+<h1 id=klockstat-an-ebpf-tool-to-monitor-linux-kernel-lock-contentions>kLockStat: An eBPF Tool To Monitor Linux Kernel Lock Contentions</h1>
+<p>APRIL 30, 2019</p>
+<p>Today most of the applications are multithreaded. Parallelism improves performance of applications. But there can be scalability bottlenecks inside the kernel. There are studies that exposes such bottlenecks in linux kernel. Even if the application is written in a perfectly scalable fasion, sometimes the bottlenecks inside the kernel prevent the application from scaling to a large number of processors. There are two main reasons for this problem</p>
+<ul>
+<li>Sometimes some operation inside the kernel is serialized, and a lock contention happens in some part of the kernel.</li>
+<li>There can be some unforeseen situation, which causes lock contentions</li>
+</ul>
+<p>In both the cases it is important to figure out which part of the kernel is causing the scalability issue.</p>
+<p>There are different tracing tools in linux which help collecting details of running kernel and users can run from the userspace. But there is no tool which gives a comprehensive analysis of different types of locks inside the kernel. Our aim is to come up with a tool, which can monitor all kinds of locks used in the linux kernel, on all the subsystems.</p>
+<p>With the introduction of eBPF(Extended Berkeley Packet Filter) to the linux kernel, it has become possible to write tracing tools for linux easier than before. There are different tracing frameworks based on eBPF like bpftrace and bcc. These tools allows users to insert dynamic probes in the kernel and execute some code which can do tracing. Different tools are developed and distributed along with above tracing frameworks. But there is no tool which can measure lock contentions in the kernel.</p>
+<h2 id=table-of-contents>Table of Contents</h2>
+<div class=toc>
+<nav id=TableOfContents>
+<ul>
+<li><a href=#klockstat-an-ebpf-tool-to-monitor-linux-kernel-lock-contentions>kLockStat: An eBPF Tool To Monitor Linux Kernel Lock Contentions</a>
+<ul>
+<li><a href=#table-of-contents>Table of Contents</a></li>
+<li><a href=#background>Background</a>
+<ul>
+<li><a href=#ebpf>eBPF</a></li>
+<li><a href=#bcc>BCC</a></li>
+</ul>
+</li>
+<li><a href=#klockstat-design>kLockStat Design</a>
+<ul>
+<li><a href=#instrumentation>Instrumentation</a></li>
+<li><a href=#user-space-process>User Space Process</a></li>
+</ul>
+</li>
+<li><a href=#implementation>Implementation</a>
+<ul>
+<li><a href=#data-structures>Data Structures</a></li>
+<li><a href=#instrumentation-details>Instrumentation Details</a></li>
+<li><a href=#considering-the-locking-overhead>Considering the locking overhead</a></li>
+<li><a href=#report-generation>Report Generation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</div>
+<h2 id=background>Background</h2>
+<h3 id=ebpf>eBPF</h3>
+<p>eBPF, which was introduced from linux kernel 3.18, has brought DTrace like features to the kernel. eBPF is an in kernel virtual machine in linux kernel which can run user supplied code. Before eBPF, BPF(Berkeley Packet Filter) was present in the linux kernel. BPF was used by pcap library used by tcpdump to run code for filtering network packets. The design and instruction set of BPF was left behind as modern processors evolved . Thus BPF was extended as eBPF, which is more capable and has many performance improvements. The linux kernel has to be compiled with CONFIG_BPF_SYSCALL option and kernel version should be atleast 4.4. Most modern distributions like ubuntu includes kernel compiled with CONFIG_BPF_SYSCALL option.</p>
+<p><img src=imgs/ebpf.png alt=eBPF></p>
+<p><em>Overview of eBPF</em></p>
+<p>eBPF can run programs which can be attached to certain code paths in kernel and it can access kernel data structures. This makes it a perfect candidate for tracing applications. eBPF programs are safe. Any issue in the eBPF program will not crash the machine in any case.</p>
+<p>eBPF statically checks the program before executing. The code running inside eBPF virtual machine can not break the kernel. eBPF programs are loaded to kernel using the <em>bpf()</em> system call. BCC(BPF Compiler Collection) is an LLVM based compiler for converting C like programs to eBPF instructions. BCC, which supports multiple languages like Python, Lua etc., is usefull for writing complex tracing programs. There are various tools already available in BCC toolkit to inspect different aspects of the kernel. Presently there is no tool available in the BCC toolkit to get information about lock contentions in the kernel.</p>
+<h3 id=bcc>BCC</h3>
+<p>BCC is a toolkit to insert eBPF programs into kernel and collect information from them. BCC has a python front end. It uses an LLVM backend to compile eBPF programs written in C language to eBPF byte code. BCC can then insert this code to eBPF. The data in the eBPF programs can be directly read data to the python script, via perf buffers. The collected data can be easily processed and displayed easily using pythons rich data processing abilities.</p>
+<h2 id=klockstat-design>kLockStat Design</h2>
+<p>The <em>kLockStat</em> tool has to collect information needed to identify lock contentions from the kernel. For this, the running kernel is instrumented to run code inside eBPF at the beginning (<em>kprobe_handler</em>) and at the end (<em>kretprobe_handler</em>) of all the lock acquire function calls, as shown in Figure 2. The handlers store their data in the internal eBPF Hashmap datastructure. Since the eBPF code is runs for all the lock operations inside the kernel for a particular type of lock, we need to keep its footprint as small as possible. Towards this, the work is split between the Instrumentation code running in eBPF, and the User Space Process running as a python script. eBPF code does a minimal job of collecting the required information and pushes it to the python script running in the user space. Processing this information and creating the report is the job of the python script.</p>
+<p><img src=imgs/design.png alt=eBPF></p>
+<p><em>Design of kLockStat</em></p>
+<h3 id=instrumentation>Instrumentation</h3>
+<p>Different types of locks are present in the kernel. The instrumentation code should be should be common for all the locks, so that same code can be used to monitor all kinds of locks in the kernel. We are more interested in collecting the time each thread is waiting on locks. Developers will need more information to get a clear picture of where the contention is happening in the kernel and why this lock is being contented and how much time is wasted on this lock. To get a clear picture, following information is collected on each lock acquire function calls.</p>
+<ul>
+<li>pid of the thread</li>
+<li>tid of the thread</li>
+<li>time-stamp of the lock function call</li>
+<li>thread name</li>
+<li>lock address</li>
+<li>number of times the lock function is called</li>
+<li>type of the lock</li>
+</ul>
+<p>A hash table is used to save the collected details. It is clear that the best candidate for the key to be used in the hash table is lock address and the thread id. Lock address is a unique identifier for all locks in the kernel address space. The same lock can be acquired by many threads at the same time. Thus lock address + Thread id can uniquely identify a lock acquire event in the kernel.</p>
+<p>To measure the locking time, a probe is executed just before returning from the lock acquire function. At this point, the time-stamp is measured and the time-stamp that was recorded initially when the lock acquire call is subtracted from the present time stamp. Also the stack trace is stored at this point. After collecting the details, the collected data is pushed to user space.</p>
+<h3 id=user-space-process>User Space Process</h3>
+<p>A user space process polls the perf event buffer to read the data from the ePBF process. The used process revieces an object which has information of one particular lock acquire funtion calls. The details the user process gets includes the address of the lock, tid, pid of the locking thread, waiting time, the stack trace of the lock acquire function call. Using this information, it creates and updates a table which contains the information of all the locks that it is tracking. For each lock, it keeps a cumuative locking time, and the number of times the lock is acquired. It stores the stack traces from which the lock is acquire along with the locking time for each stack trace. This helps to identifies which function spending more time waiting for the lock.</p>
+<h2 id=implementation>Implementation</h2>
+<p>kLockStat is implemented using the BPF Compiler Collection, which allows to insert probes and eBPF code from a python script. The same python script after inserting the probes constatnly polls the perf event buffer to collect data from eBPF scripts running in the kernel. <em>kLockStat}</em> by default tracks all lock events for read lock, write lock and mutexes inside the kernel. <em>kLockStat}</em> can monitor any other types of locks by simply extending a json input file.</p>
+<h3 id=data-structures>Data Structures</h3>
+<p>eBPF provides a number of data structures that helps the code running in the virtual machine to save information and to communicate with user level processes.</p>
+<h4 id=struct-for-processing-each-locking-operations>Struct for processing each locking operations</h4>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>struct data_t {
+    u32 pid;
+    u32 tid;
+    u64 ts;
+    char comm[TASK_COMM_LEN];
+    u64 lock;
+    u64 lock_time;
+    u64 stack_id;
+    u32 type;
+};
+</code></pre></td></tr></table>
+</div>
+</div><p>The code running inside the eBPF virtual machine uses the above struct to save the information it collects from each lock activities.</p>
+<h4 id=hash-map-for-saving-the-records>Hash Map for saving the records</h4>
+<p>eBPF provides hashmaps, which helps to store informations between two different probe events. We are using separate hash maps for different types of locks. The value stored in the hashmap are the objects of the struct described above. The key used is a combination of the address of the lock and the tid, pid combination of the thread which is trying to acquire the lock.</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>struct key_t {
+    u64 pid;
+    raw_spinlock_t* lock;
+};
+</code></pre></td></tr></table>
+</div>
+</div><p>The above struct represents a key. It uniquely identifies a particular locking event in the kernel. The value is the data presented above.</p>
+<h4 id=stack-records>Stack Records</h4>
+<p>eBPF provides the stacktrace data scructure to store stack traces. For each lock acquire call, we store the stack record of that call in such a data structure. This will helps to process information like which function is trying to acquire the lock and which code path is creating contention.</p>
+<h4 id=perf-ring-buffer>Perf Ring Buffer</h4>
+<p>When a lock acquire function has completed execution, the time taken for that operation can be sent to the user space process for processing. eBPF provides support for perf ring buffers. Using perf ring buffers, we can stream this data to the user space.</p>
+<h3 id=instrumentation-details>Instrumentation Details</h3>
+<h4 id=kprobe_handler>kprobe_handler()</h4>
+<p>A general template of the instrumentation function to be put on all the lock acquire function is designed to be run in eBPF.</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>int kprobe_handler(struct pt_regs *ctx,
+					 void *lock) 
+{
+
+  u32 current_pid = bpf_get_current_pid_tgid();
+  if(current_pid == CUR_PID)
+    return 0;
+	
+  struct data_t data = {};
+  struct key_t key =
+     {bpf_get_current_pid_tgid(), lock};
+  data.pid = bpf_get_current_pid_tgid();
+  data.tid = bpf_get_current_pid_tgid() &gt;&gt; 32;
+  data.ts = bpf_ktime_get_ns();
+  bpf_get_current_comm(&amp;data.comm,
+          sizeof(data.comm));
+  data.lock = (u64)lock;
+  data.stack_id = stack_traces.get_stackid
+     (ctx, BPF_F_REUSE_STACKID);
+  map.insert(&amp;key, &amp;data);
+  return 0;
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>A probe is inserted on the lock acquire funtions using kprobe so that whenever a lock acquire funtion is called in the kernel, the above code will be executed inside the eBPF virtual machine. The above function has access to the context of the lock acquire function which allows it to collect the required information.</p>
+<p>When a lock acquire function is called in the kernel the above code gets executed. The above function will get the context of the function call and the actual argument of the function. It maintains a hash-map which stores record of each for each lock function calls.</p>
+<ul>
+<li>It uses the lock address and the tid of the thread as a key to see if there is already a record for this lock</li>
+<li>It then creates an object and stores the necessary information like present time, tid, tgid, thread name, and lock’s address in the kernel address space.</li>
+<li>It then pushes this newly created object to the hash-map so that it can be accessed when the lock is acquired.</li>
+</ul>
+<h4 id=kretprobe_handler>kretprobe_handler()</h4>
+<p>When the lock function is exiting, the wait for acquiring the lock has ended and now we can calculate the time it has taken waiting for the lock. For this we insert the following code to be executed just before exiting from the lock acquire function.</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>int kretprobe_handler(struct pt_regs *ctx,
+				 raw_spinlock_t *lock) {
+  u64 present = bpf_ktime_get_ns();
+  u32 current_pid = bpf_get_current_pid_tgid();
+  if(current_pid == CUR_PID)
+    return 0;
+	
+  struct data_t *data;
+  struct key_t key = 
+    {bpf_get_current_pid_tgid(), lock};
+  data = map__NAME_.lookup(&amp;key);
+  if(data)
+  {
+    data-&gt;lock_time += (present - data-&gt;ts);
+    data-&gt;type = _ID_;
+    perf_buffer.perf_submit(ctx, data,
+       sizeof(struct data_t));
+  }
+  return 0;
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>This function accesses the previously saved object using the lock address and thread id as a key in the hash-map. The object will have the time at which the thread started waiting for this lock. That time is subtracted from the present time to get the wait time in nanoseconds. This function also records the stack trace of the lock function call in the object. The object is then pushed into the perf event buffer, so that the user level python script can access and process it accordingly.</p>
+<h3 id=considering-the-locking-overhead>Considering the locking overhead</h3>
+<p>As we are inserting code in the lock acquire funtion, this will increase the running time of the function. Thus the wait time we collect, will have the time required to run the tracing code. We can assume that there should be lock that are not contented or there are locks which is acquired as soon as the lock acquire funtion is called in the kernel. The minimum locking time is found out and this value is subtracted from all the lock waiting time. This ensures to an extend that tracing time is not included as the lock waiting time in our measurement.</p>
+<h3 id=report-generation>Report Generation</h3>
+<p><img src=imgs/screenshot.png alt=eBPF> <em>Screenshot of a report generated by kLockStat</em></p>
+<p><em>kLockStat</em> creates html reports as shown above. The python library Jinja is used to create the html report. Google charts Javascript API is used to plot charts in the report. The html report contains the following charts, that will enable a programmer to quickly spot anomalies in the kernel lock contentions -</p>
+<ul>
+<li>Doughnut Chart - share of locking times for each type of lock.</li>
+<li>Histogram - a bar chart of waiting time for all locks in the kernel.</li>
+<li>Box Chart - spread of locking times of each type of lock</li>
+</ul>
+<p>The report also generates a table of all locks, sorted in the order of locking time, that helps to identify the cause of contentions. The details presented in the table are -</p>
+<ul>
+<li>Lock Address</li>
+<li>Lock Type</li>
+<li>Thread Name</li>
+<li>PID</li>
+<li>TID</li>
+<li>Total Wait Time</li>
+<li>Total Count</li>
+<li>Stack Trace</li>
+</ul>
+<blockquote>
+<p>Github repository for this tool: <a href=https://github.com/prathyushpv/lockstat>https://github.com/prathyushpv/lockstat</a></p>
+</blockquote>
+</div>
+<div class=post-copyright>
+<p class=copyright-item>
+<span class=item-title>Author</span>
+<span class=item-content>Prathyush</span>
+</p>
+<p class=copyright-item>
+<span class=item-title>LastMod</span>
+<span class=item-content>
+2022-03-29
+</span>
+</p>
+</div>
+<footer class=post-footer>
+<div class=post-tags>
+<a href=/tags/ebpf/>ebpf</a>
+<a href=/tags/beginner/>beginner</a>
+</div>
+<nav class=post-nav>
+<a class=prev href=/post/build-useful-tools-with-ebpf-part1-setup-bcc/>
+<i class="iconfont icon-left"></i>
+<span class="prev-text nav-default">Build Useful Tools With Ebpf Part1 Setup Bcc</span>
+<span class="prev-text nav-mobile">Prev</span>
+</a>
+<a class=next href=/post/performanc_tracing_with_bpf/>
+<span class="next-text nav-default">Performanc Tracing with BPF</span>
+<span class="next-text nav-mobile">Next</span>
+<i class="iconfont icon-right"></i>
+</a>
+</nav>
+</footer>
+</article>
+</div>
+<div id=disqus_thread></div>
+<script type=text/javascript>(function(){var a,b;if(window.location.hostname==='localhost')return;a=document.createElement('script'),a.type='text/javascript',a.async=!0,b='david',a.src='//'+b+'.disqus.com/embed.js',(document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(a)})()</script>
+<noscript>Please enable JavaScript to view the <a href=http://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript>
+</div>
+</main>
+<footer id=footer class=footer>
+<div class=social-links>
+<a href=https://github.com/awesome-ebpf class="iconfont icon-github" title=github></a>
+<a href=http://ebpf.xyz/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a>
+</div>
+<div class=copyright>
+<span class=power-by>
+Powered by <a class=hexo-link href=https://gohugo.io>Hugo</a>
+</span>
+<span class=division>|</span>
+<span class=theme-info>
+Theme -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a>
+</span>
+<span class=copyright-year>
+&copy;
+2017 -
+2022<span class=heart><i class="iconfont icon-heart"></i></span><span>Dave</span>
+</span>
+</div>
+</footer>
+<div class=back-to-top id=back-to-top>
+<i class="iconfont icon-up"></i>
+</div>
+</div>
+<script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script>
+<script type=text/javascript src=/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js></script>
+</body>
+</html>

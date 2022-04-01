@@ -1,0 +1,325 @@
+<!doctype html><html lang=en>
+<head>
+<meta charset=utf-8>
+<meta http-equiv=x-ua-compatible content="IE=edge,chrome=1">
+<title>What is eBPF? | An Introduction and Practical Tips - eBPF - the Super Power for Kernel</title>
+<meta name=renderer content="webkit">
+<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta http-equiv=cache-control content="no-transform">
+<meta http-equiv=cache-control content="no-siteapp">
+<meta name=theme-color content="#f8f5ec">
+<meta name=msapplication-navbutton-color content="#f8f5ec">
+<meta name=apple-mobile-web-app-capable content="yes">
+<meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2806255399860723" crossorigin=anonymous></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1VNNF72R18"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date),gtag('config','G-1VNNF72R18')</script>
+<meta name=author content="Nate Matherson"><meta name=description content="Addr：https://ebpf.xyz/post/an_introduction_and_practical_tips
+March 23, 2022
+This article introduces developers to eBPF and explains how it can be used to add security, networking, and other capabilities in the Linux kernel space.
+In Linux architecture, memory is separated into kernel space and user space. The kernel space is used to run the core kernel code and the device drivers. Processes running in kernel space have unrestricted access to all hardware, including CPU, memory, and disks."><meta name=keywords content="ebpf,cilium">
+<meta name=generator content="Hugo 0.86.1 with theme even">
+<link rel=canonical href=http://ebpf.xyz/post/an_introduction_and_practical_tips/>
+<link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
+<link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>
+<link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png>
+<link rel=manifest href=/manifest.json>
+<link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5>
+<link href=/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css rel=stylesheet>
+<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous>
+<meta property="og:title" content="What is eBPF? | An Introduction and Practical Tips">
+<meta property="og:description" content="Addr：https://ebpf.xyz/post/an_introduction_and_practical_tips
+March 23, 2022
+This article introduces developers to eBPF and explains how it can be used to add security, networking, and other capabilities in the Linux kernel space.
+In Linux architecture, memory is separated into kernel space and user space. The kernel space is used to run the core kernel code and the device drivers. Processes running in kernel space have unrestricted access to all hardware, including CPU, memory, and disks.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="http://ebpf.xyz/post/an_introduction_and_practical_tips/"><meta property="article:section" content="post">
+<meta property="article:published_time" content="2022-04-01T23:12:04+08:00">
+<meta property="article:modified_time" content="2022-04-01T23:12:04+08:00">
+<meta itemprop=name content="What is eBPF? | An Introduction and Practical Tips">
+<meta itemprop=description content="Addr：https://ebpf.xyz/post/an_introduction_and_practical_tips
+March 23, 2022
+This article introduces developers to eBPF and explains how it can be used to add security, networking, and other capabilities in the Linux kernel space.
+In Linux architecture, memory is separated into kernel space and user space. The kernel space is used to run the core kernel code and the device drivers. Processes running in kernel space have unrestricted access to all hardware, including CPU, memory, and disks."><meta itemprop=datePublished content="2022-04-01T23:12:04+08:00">
+<meta itemprop=dateModified content="2022-04-01T23:12:04+08:00">
+<meta itemprop=wordCount content="1627">
+<meta itemprop=keywords content="ebpf,beginner,"><meta name=twitter:card content="summary">
+<meta name=twitter:title content="What is eBPF? | An Introduction and Practical Tips">
+<meta name=twitter:description content="Addr：https://ebpf.xyz/post/an_introduction_and_practical_tips
+March 23, 2022
+This article introduces developers to eBPF and explains how it can be used to add security, networking, and other capabilities in the Linux kernel space.
+In Linux architecture, memory is separated into kernel space and user space. The kernel space is used to run the core kernel code and the device drivers. Processes running in kernel space have unrestricted access to all hardware, including CPU, memory, and disks."><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script>
+<script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]-->
+</head>
+<body>
+<div id=mobile-navbar class=mobile-navbar>
+<div class=mobile-header-logo>
+<a href=/ class=logo>eBPF Pearls</a>
+</div>
+<div class=mobile-navbar-icon>
+<span></span>
+<span></span>
+<span></span>
+</div>
+</div>
+<nav id=mobile-menu class="mobile-menu slideout-menu">
+<ul class=mobile-menu-list>
+<a href=/>
+<li class=mobile-menu-item>Home</li>
+</a><a href=/post/>
+<li class=mobile-menu-item>Archives</li>
+</a><a href=/tags/>
+<li class=mobile-menu-item>Tags</li>
+</a><a href=/categories/>
+<li class=mobile-menu-item>Categories</li>
+</a>
+</ul>
+</nav>
+<div class=container id=mobile-panel>
+<header id=header class=header>
+<div class=logo-wrapper>
+<a href=/ class=logo>eBPF Pearls</a>
+</div>
+<nav class=site-navbar>
+<ul id=menu class=menu>
+<li class=menu-item>
+<a class=menu-item-link href=/>Home</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/post/>Archives</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/tags/>Tags</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/categories/>Categories</a>
+</li>
+</ul>
+</nav>
+</header>
+<main id=main class=main>
+<div class=content-wrapper>
+<div id=content class=content>
+<article class=post>
+<header class=post-header>
+<h1 class=post-title>What is eBPF? | An Introduction and Practical Tips</h1>
+<div class=post-meta>
+<span class=post-time> 2022-04-01 </span>
+<div class=post-category>
+<a href=/categories/ebpf/> ebpf </a>
+<a href=/categories/2022/> 2022 </a>
+<a href=/categories/overview/> overview </a>
+</div>
+<span class=more-meta> 1627 words </span>
+<span class=more-meta> 8 mins read </span>
+</div>
+</header>
+<div class=post-toc id=post-toc>
+<h2 class=post-toc-title>Contents</h2>
+<div class=post-toc-content>
+<nav id=TableOfContents>
+<ul>
+<li>
+<ul>
+<li><a href=#what-is-ebpf>What Is eBPF?</a></li>
+<li><a href=#how-ebpf-works>How eBPF Works</a></li>
+<li><a href=#advantages-of-ebpf>Advantages of eBPF</a></li>
+<li><a href=#when-to-use-ebpf>When to Use eBPF</a></li>
+<li><a href=#when-not-to-use-ebpf>When Not to Use eBPF</a></li>
+<li><a href=#getting-started-with-ebpf>Getting Started with eBPF</a></li>
+<li><a href=#conclusion>Conclusion</a></li>
+</ul>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+<div class=post-content>
+<p>Addr：<a href=https://ebpf.xyz/post/an_introduction_and_practical_tips>https://ebpf.xyz/post/an_introduction_and_practical_tips</a></p>
+<p>March 23, 2022</p>
+<p>This article introduces developers to eBPF and explains how it can be used to add security, networking, and other capabilities in the Linux kernel space.</p>
+<p>In Linux architecture, memory is separated into kernel space and user space. The kernel space is used to run the core kernel code and the device drivers. Processes running in kernel space have unrestricted access to all hardware, including CPU, memory, and disks. All other processes run in the user space, which relies on the kernel to access the hardware. Processes running in the user space use system calls to communicate with the kernel for privileged operations like disk or network I/O.</p>
+<p>This separation creates a secure distinction between various processes, but in some cases the syscall interface is not sufficient and developers need more flexibility to run custom code directly in the kernel without changing the kernel’s source code. For this purpose, Linux provides Linux Kernel Modules, which can be loaded directly in the kernel on demand during runtime.</p>
+<p>The kernel modules, however, create security risks since they can run arbitrary code directly in the kernel space. A buggy code in a kernel module can easily crash the kernel. This is why Linux provides a way to run secure, verified sandboxed code in the kernel space through eBPF.</p>
+<h2 id=what-is-ebpf>What Is eBPF?</h2>
+<p>BPF, or the Berkeley Packet Filter, was developed from a need to filter network packets in order to minimize unnecessary packet copies from the kernel space to the user space. User space applications like tcpdump are only interested in a small subset of network packets (for example, TCP/IP packets). If the filtering logic is in the user space application, unnecessary packets are copied from the kernel space to the user space. Placing the filtering logic in the kernel prevents those extra copies.</p>
+<p>BPF provided a register-based virtual machine with its own instruction set where programs could be safely loaded into the kernel and executed in a secure, sandboxed environment. Since version 3.18, the Linux kernel provides extended BPF, or eBPF, which uses 64-bit registers and increases the number of registers from two to ten. eBPF offers an improved instruction set, which significantly boosts performance.</p>
+<h2 id=how-ebpf-works>How eBPF Works</h2>
+<p>eBPF programs are event-driven, which means they can be hooked to certain events and will be run by the kernel when that particular event occurs. The program can store information in maps, print to ring buffers, or call a subset of kernel functions defined by a special API. The map and ring buffer structures are managed by the kernel, and the same map can be accessed by multiple eBPF programs in order to share data.</p>
+<p>eBPF programs follow these steps:</p>
+<ol>
+<li>The bytecode of the eBPF program is sent to the kernel along with a program type that determines where the program needs to be attached, which in-kernel helper functions the verifier will allow to be called, whether network packet data can be accessed directly, and what type of object will pass as the first argument to the program.</li>
+<li>The kernel runs a verifier on the bytecode. The verifier runs several security checks on the bytecode, which make sure that the program terminates and does not contain any loop that could potentially lock up the kernel. It also simulates the execution of the eBPF program and checks the state of the virtual machine at every step to ensure the register and stack states are valid. Finally, it uses the program type to restrict the allowed kernel function calls from the program.</li>
+<li>The bytecode is JIT-compiled into native code and attached to the specified location.</li>
+<li>When the specified event occurs, the program is executed and writes data to the ring buffer or the map.</li>
+<li>The map or ring buffer can be read by the user space to get the program result.</li>
+</ol>
+<p><img src=imgs/623371d2777dda3c246c43f0_eBPF.png alt="Diagram explaining how eBPF works"></p>
+<h2 id=advantages-of-ebpf>Advantages of eBPF</h2>
+<p>eBPF is most commonly used to trace and profile user space processes, and more recently as a way to <a href=https://www.containiq.com/post/using-ebpf-to-enhance-kubernetes-monitoring>enhance monitoring capabilities</a>. It provides some clear advantages over other methods:</p>
+<ul>
+<li>eBPF moves the task of packet filtering from the user space to the kernel space, thus preventing unnecessary packet copies, which results in a significant performance increase. Because the program is JIT-compiled, it operates quickly.</li>
+<li>eBPF programs are sandboxed and verified, which ensures the kernel doesn’t crash or hang up in a loop. This provides greater security over kernel modules.</li>
+<li>Using eBPF doesn’t require you to modify kernel source code or write full-fledged kernel modules. It is easy to write and execute an eBPF program.</li>
+</ul>
+<h2 id=when-to-use-ebpf>When to Use eBPF</h2>
+<p>eBPF offers the greatest benefits in some specific use cases:</p>
+<ul>
+<li>eBPF is superior to other methods of profiling and tracing user space processes. eBPF programs can be attached to any kernel function and access the context and arguments of the function, as well as modify them. eBPF provides advanced statistical data structures that easily and efficiently extract meaningful data.</li>
+<li>eBPF can implement traffic control, so that packets are directly sent to their destination. This is especially useful in Kubernetes and other container environments in which you have multiple networks, because traffic is usually routed to a container stack. Using eBPF, the complex path between the host and the container stack can be bypassed.</li>
+<li>eBPF can implement <a href=https://www.containiq.com/post/kubernetes-security-best-practices>security policies in container environments</a> such as Docker or Kubernetes. eBPF is used in XDP (eXpress Data Path) to provide a high-performance, programmable network data path.</li>
+</ul>
+<h2 id=when-not-to-use-ebpf>When Not to Use eBPF</h2>
+<p>eBPF offers many advantages, but it does have limitations. Here are a few situations where eBPF should not be used:</p>
+<ul>
+<li>Since eBPF aims to be secure, it prohibits loops and other high-level constructs, which means the programs are simple and restricted. If you want more control over how the programs are executed, writing a kernel module might be a better choice.</li>
+<li>Executing eBPF programs consumes CPU cycles, and using eBPF instead of built-in tools like iptables might result in a high CPU usage. This will increase the costs from your cloud provider.</li>
+<li>eBPF is not suited for a use case in which you need to process every packet, such as in decryption and re-encryption of packets. Per-packet processing will be expensive and relatively slow.</li>
+</ul>
+<h2 id=getting-started-with-ebpf>Getting Started with eBPF</h2>
+<p>Writing an eBPF program directly in the bytecode is extremely hard. Fortunately, you can write the program in other languages and compile it to the eBPF bytecode. You’ll also need to write a user space program that attaches this bytecode to the kernel and interacts with it. The most straightforward way to write an eBPF program is to use <a href=https://www.containiq.com/post/bcc-tools>BCC (BPF Compiler Collection)</a>, which provides frontend for eBPF in C++, Python, and Lua. For this example, you will be using the Python frontend.</p>
+<p>To follow along, you need to <a href=https://github.com/iovisor/bcc/blob/master/INSTALL.md>install BCC</a> and create a file called bpf.py.</p>
+<p>First, import the required module:</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=kn>from</span> <span class=nn>bcc</span> <span class=kn>import</span> <span class=n>BPF</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Now using C, write the code for the eBPF program that will be executed in the kernel. You can either write the C program inside Python and store it as a string variable, or write it in a separate file and read that file into the Python program. We will be taking the first approach.</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=n>program</span> <span class=o>=</span> <span class=s2>&#34;&#34;&#34;
+</span><span class=s2>init kprobe__sys_clone(void *ctx) {
+</span><span class=s2> bpf_trace_printk(&#34;Hello, World!</span><span class=se>\\</span><span class=s2>n&#34;);
+</span><span class=s2> return 0;
+</span><span class=s2>}
+</span><span class=s2>&#34;&#34;&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Let’s understand the C program. It defines a simple function named kprobe__sys_clone. The name of the function tells BCC where to attach it. Since the name starts with kprobe__, it defines a kprobe to trace a kernel function. The rest of the function name defines which kernel function to trace, in this case sys_clone. The function takes one argument, ctx. This is actually the type struct pt_regs *, which holds the registers and the BPF context. Since you will not be using this argument here, it is cast to void *. The function can include as many of the probed function arguments as you want, as long as the first argument is ctx.</p>
+<p>Inside the function, we are using bpf_trace_printk to print hello world to the kernel’s common <a href=https://dillinger.io/sys/kernel/debug/tracing/trace_pipe>trace_pipe</a>. Finally, return 0; is a <a href=https://github.com/iovisor/bcc/issues/139>necessary formality</a>.</p>
+<p>Compile the program, verify it, and load it into the kernel. All of this is handled by the BPF class:</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=n>b</span> <span class=o>=</span> <span class=n>BPF</span><span class=p>(</span><span class=n>text</span><span class=o>=</span><span class=n>program</span><span class=p>)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Read the kernel’s trace_pipe and print the messages:</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=n>python</span>
+<span class=nb>print</span><span class=p>(</span><span class=s2>&#34;</span><span class=si>%-18x</span><span class=s2> </span><span class=si>%-16s</span><span class=s2> </span><span class=si>%-6s</span><span class=s2> </span><span class=si>%s</span><span class=s2>&#34;</span> <span class=o>%</span> <span class=p>(</span><span class=s2>&#34;TIME(s)&#34;</span><span class=p>,</span> <span class=s2>&#34;COMMAND&#34;</span><span class=p>,</span> <span class=s2>&#34;PID&#34;</span><span class=p>,</span> <span class=s2>&#34;MESSAGE&#34;</span><span class=p>))</span>
+
+<span class=k>while</span> <span class=mi>1</span><span class=p>:</span>
+ <span class=k>try</span>
+  <span class=p>(</span><span class=n>task</span><span class=p>,</span> <span class=n>pid</span><span class=p>,</span> <span class=n>cpu</span><span class=p>,</span> <span class=n>flags</span><span class=p>,</span> <span class=n>ts</span><span class=p>,</span> <span class=n>msg</span><span class=p>)</span> <span class=o>=</span> <span class=n>b</span><span class=o>.</span><span class=n>trace_fields</span><span class=p>()</span>
+ <span class=k>except</span> <span class=ne>ValueError</span><span class=p>:</span>
+  <span class=k>continue</span>
+ <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;</span><span class=si>%-18.9f</span><span class=s2> </span><span class=si>%-16s</span><span class=s2> </span><span class=si>%-6d</span><span class=s2> </span><span class=si>%s</span><span class=s2>&#34;</span> <span class=o>%</span> <span class=p>(</span><span class=n>ts</span><span class=p>,</span> <span class=n>task</span><span class=o>.</span><span class=n>decode</span><span class=p>(),</span> <span class=n>pid</span><span class=p>,</span> <span class=n>msg</span><span class=o>.</span><span class=n>decode</span><span class=p>()))</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>This sets up a trace_fields loop, which performs a blocking read on the trace_pipe and returns a fixed set of information about the execution of the traced function. Finally, print the fields you need. The values task and msg are bytes, so call decode to convert them into strings.</p>
+<p>To run this program, you will need superuser permission. Run the program with sudo:</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>sudo python bpf.py
+</code></pre></td></tr></table>
+</div>
+</div><p>Now open up another shell and run any command like ls or cat that will trigger the clone call. Your eBPF program will be executed and the output will be printed. Here is a sample output:</p>
+<p>‍</p>
+<p><img src=imgs/613178355eb35d3fba23c010_EHPzbEq.png alt="Sample eBPF output"></p>
+<p>​ Sample eBPF output</p>
+<p>For more code samples, check the <a href=https://github.com/iovisor/bcc/tree/master/examples>BCC examples directory</a>.</p>
+<h2 id=conclusion>Conclusion</h2>
+<p>eBPF is an excellent advancement for the Linux kernel. The ability to run code in a secured and sandboxed fashion in the kernel is a valuable tool for observability, network traffic control, and containerization.</p>
+<p>If you want to learn more about eBPF and access community resources, conferences, and blogs, visit <a href=https://ebpf.io/>ebpf.io</a>. The <a href=https://github.com/iovisor/bcc/tree/master/docs>BCC docs</a> are great to get started quickly with code samples. However, you may also want to consider using <a href=https://www.containiq.com/post/libbpf>libbpf as an alternative to BCC</a>. Finally, the <a href=https://github.com/zoidbergwill/awesome-ebpf>Awesome eBPF repo</a> aggregates multiple resources for further research.</p>
+<p>From: <a href=https://www.containiq.com/post/ebpf>https://www.containiq.com/post/ebpf</a></p>
+</div>
+<div class=post-copyright>
+<p class=copyright-item>
+<span class=item-title>Author</span>
+<span class=item-content>Nate Matherson</span>
+</p>
+<p class=copyright-item>
+<span class=item-title>LastMod</span>
+<span class=item-content>
+2022-04-01
+</span>
+</p>
+</div>
+<footer class=post-footer>
+<div class=post-tags>
+<a href=/tags/ebpf/>ebpf</a>
+<a href=/tags/beginner/>beginner</a>
+</div>
+<nav class=post-nav>
+<a class=next href=/post/ebpf_k8s_monitoring/>
+<span class="next-text nav-default">Using eBPF To Enhance Kubernetes Monitoring: Powerful Insights</span>
+<span class="next-text nav-mobile">Next</span>
+<i class="iconfont icon-right"></i>
+</a>
+</nav>
+</footer>
+</article>
+</div>
+<div id=disqus_thread></div>
+<script type=text/javascript>(function(){var a,b;if(window.location.hostname==='localhost')return;a=document.createElement('script'),a.type='text/javascript',a.async=!0,b='david',a.src='//'+b+'.disqus.com/embed.js',(document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(a)})()</script>
+<noscript>Please enable JavaScript to view the <a href=http://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript>
+</div>
+</main>
+<footer id=footer class=footer>
+<div class=social-links>
+<a href=https://github.com/awesome-ebpf class="iconfont icon-github" title=github></a>
+<a href=http://ebpf.xyz/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a>
+</div>
+<div class=copyright>
+<span class=power-by>
+Powered by <a class=hexo-link href=https://gohugo.io>Hugo</a>
+</span>
+<span class=division>|</span>
+<span class=theme-info>
+Theme -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a>
+</span>
+<span class=copyright-year>
+&copy;
+2017 -
+2022<span class=heart><i class="iconfont icon-heart"></i></span><span>Dave</span>
+</span>
+</div>
+</footer>
+<div class=back-to-top id=back-to-top>
+<i class="iconfont icon-up"></i>
+</div>
+</div>
+<script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script>
+<script type=text/javascript src=/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js></script>
+</body>
+</html>

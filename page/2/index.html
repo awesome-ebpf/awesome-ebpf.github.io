@@ -2,7 +2,7 @@
 <head>
 <meta charset=utf-8>
 <meta http-equiv=x-ua-compatible content="IE=edge,chrome=1">
-<title>2022 · eBPF - the Super Power for Kernel</title>
+<title>eBPF - the Super Power for Kernel</title>
 <meta name=renderer content="webkit">
 <meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1">
 <meta http-equiv=cache-control content="no-transform">
@@ -16,9 +16,9 @@
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date),gtag('config','G-1VNNF72R18')</script>
 <meta name=author content="Dave"><meta name=description content="Hugo theme even example site."><meta name=keywords content="Hugo,theme,even">
 <meta name=generator content="Hugo 0.86.1 with theme even">
-<link rel=canonical href=http://ebpf.xyz/categories/2022/>
-<link href=http://ebpf.xyz/categories/2022/index.xml rel=alternate type=application/rss+xml title="eBPF - the Super Power for Kernel">
-<link href=http://ebpf.xyz/categories/2022/index.xml rel=feed type=application/rss+xml title="eBPF - the Super Power for Kernel">
+<link rel=canonical href=http://ebpf.xyz/>
+<link href=http://ebpf.xyz/index.xml rel=alternate type=application/rss+xml title="eBPF - the Super Power for Kernel">
+<link href=http://ebpf.xyz/index.xml rel=feed type=application/rss+xml title="eBPF - the Super Power for Kernel">
 <link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
 <link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>
 <link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png>
@@ -26,13 +26,13 @@
 <link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5>
 <link href=/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css rel=stylesheet>
 <link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous>
-<meta property="og:title" content="2022">
+<meta property="og:title" content="eBPF - the Super Power for Kernel">
 <meta property="og:description" content="Hugo theme even example site.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="http://ebpf.xyz/categories/2022/">
-<meta itemprop=name content="2022">
+<meta property="og:url" content="http://ebpf.xyz/">
+<meta itemprop=name content="eBPF - the Super Power for Kernel">
 <meta itemprop=description content="Hugo theme even example site."><meta name=twitter:card content="summary">
-<meta name=twitter:title content="2022">
+<meta name=twitter:title content="eBPF - the Super Power for Kernel">
 <meta name=twitter:description content="Hugo theme even example site."><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script>
 <script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]-->
 </head>
@@ -82,49 +82,38 @@
 <main id=main class=main>
 <div class=content-wrapper>
 <div id=content class=content>
-<section id=archive class=archive>
-<div class="archive-title category">
-<h2 class=archive-name>2022</h2>
+<section id=posts class=posts>
+<article class=post>
+<header class=post-header>
+<h1 class=post-title><a class=post-link href=/post/what_is_ebpf/>What is eBPF?</a></h1>
+<div class=post-meta>
+<span class=post-time> 2022-03-25 </span>
+<div class=post-category>
+<a href=/categories/ebpf/> ebpf </a>
+<a href=/categories/overview/> overview </a>
+<a href=/categories/2019/> 2019 </a>
 </div>
-<div class=archive-post>
-<span class=archive-post-time>
-2022-04-02
-</span>
-<span class=archive-post-title>
-<a href=/post/btfgen-one-step-closer-to-truly-portable-ebpf-programs/ class=archive-post-link>
-BTFGen: One Step Closer to Truly Portable eBPF Programs
-</a>
-</span>
-</div><div class=archive-post>
-<span class=archive-post-time>
-2022-04-01
-</span>
-<span class=archive-post-title>
-<a href=/post/an_introduction_and_practical_tips/ class=archive-post-link>
-What is eBPF? | An Introduction and Practical Tips
-</a>
-</span>
-</div><div class=archive-post>
-<span class=archive-post-time>
-2022-04-01
-</span>
-<span class=archive-post-title>
-<a href=/post/ebpf_k8s_monitoring/ class=archive-post-link>
-Using eBPF To Enhance Kubernetes Monitoring: Powerful Insights
-</a>
-</span>
-</div><div class=archive-post>
-<span class=archive-post-time>
-2022-03-26
-</span>
-<span class=archive-post-title>
-<a href=/post/awesome-ebpf/ class=archive-post-link>
-Awesome eBPF
-</a>
-</span>
+<span class=more-meta> 2850 words </span>
+<span class=more-meta> 14 mins read </span>
 </div>
+</header>
+<div class=post-content>
+<div class=post-summary>
+Addr: https://awesome-ebpf.github.io//what_is_ebpf
+1. What is eBPF? eBPF is a revolutionary technology with origins in the Linux kernel that can run sandboxed programs in an operating system kernel. It is used to safely and efficiently extend the capabilities of the kernel without requiring to change kernel source code or load kernel modules.
+Historically, the operating system has always been an ideal place to implement observability, security, and networking functionality due to the kernel’s privileged ability to oversee and control the entire system.
+</div>
+<div class=read-more>
+<a href=/post/what_is_ebpf/ class=read-more-link>Read more...</a>
+</div>
+</div>
+</article>
 </section>
 <nav class=pagination>
+<a class=prev href=/>
+<i class="iconfont icon-left"></i>
+<span class=prev-text>Prev</span>
+</a>
 </nav>
 </div>
 </div>

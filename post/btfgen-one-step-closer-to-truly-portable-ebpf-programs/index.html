@@ -1,0 +1,807 @@
+<!doctype html><html lang=en>
+<head>
+<meta charset=utf-8>
+<meta http-equiv=x-ua-compatible content="IE=edge,chrome=1">
+<title>BTFGen: One Step Closer to Truly Portable eBPF Programs - eBPF - the Super Power for Kernel</title>
+<meta name=renderer content="webkit">
+<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta http-equiv=cache-control content="no-transform">
+<meta http-equiv=cache-control content="no-siteapp">
+<meta name=theme-color content="#f8f5ec">
+<meta name=msapplication-navbutton-color content="#f8f5ec">
+<meta name=apple-mobile-web-app-capable content="yes">
+<meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2806255399860723" crossorigin=anonymous></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1VNNF72R18"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date),gtag('config','G-1VNNF72R18')</script>
+<meta name=author content="Mauricio Vásquez Bernal"><meta name=description content="eBPF is a widely known technology used in the observability, networking and security landscapes. The Linux operating system provides a virtual machine that can run eBPF programs in a secure and efficient way. Those programs are attached to different hooks exposed by the operating system to be able to filter and extract the information of interest when a given event happens in the kernel."><meta name=keywords content="ebpf,BTFGen,BTFHub,CO-RE,bpftool">
+<meta name=generator content="Hugo 0.86.1 with theme even">
+<link rel=canonical href=http://ebpf.xyz/post/btfgen-one-step-closer-to-truly-portable-ebpf-programs/>
+<link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
+<link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>
+<link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png>
+<link rel=manifest href=/manifest.json>
+<link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5>
+<link href=/sass/main.min.f92fd13721ddf72129410fd8250e73152cc6f2438082b6c0208dc24ee7c13fc4.css rel=stylesheet>
+<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous>
+<meta property="og:title" content="BTFGen: One Step Closer to Truly Portable eBPF Programs">
+<meta property="og:description" content="eBPF is a widely known technology used in the observability, networking and security landscapes. The Linux operating system provides a virtual machine that can run eBPF programs in a secure and efficient way. Those programs are attached to different hooks exposed by the operating system to be able to filter and extract the information of interest when a given event happens in the kernel.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="http://ebpf.xyz/post/btfgen-one-step-closer-to-truly-portable-ebpf-programs/"><meta property="article:section" content="post">
+<meta property="article:published_time" content="2022-04-02T17:04:25+08:00">
+<meta property="article:modified_time" content="2022-04-02T17:04:25+08:00">
+<meta itemprop=name content="BTFGen: One Step Closer to Truly Portable eBPF Programs">
+<meta itemprop=description content="eBPF is a widely known technology used in the observability, networking and security landscapes. The Linux operating system provides a virtual machine that can run eBPF programs in a secure and efficient way. Those programs are attached to different hooks exposed by the operating system to be able to filter and extract the information of interest when a given event happens in the kernel."><meta itemprop=datePublished content="2022-04-02T17:04:25+08:00">
+<meta itemprop=dateModified content="2022-04-02T17:04:25+08:00">
+<meta itemprop=wordCount content="3263">
+<meta itemprop=keywords content="ebpf,beginner,"><meta name=twitter:card content="summary">
+<meta name=twitter:title content="BTFGen: One Step Closer to Truly Portable eBPF Programs">
+<meta name=twitter:description content="eBPF is a widely known technology used in the observability, networking and security landscapes. The Linux operating system provides a virtual machine that can run eBPF programs in a secure and efficient way. Those programs are attached to different hooks exposed by the operating system to be able to filter and extract the information of interest when a given event happens in the kernel."><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script>
+<script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]-->
+</head>
+<body>
+<div id=mobile-navbar class=mobile-navbar>
+<div class=mobile-header-logo>
+<a href=/ class=logo>eBPF Pearls</a>
+</div>
+<div class=mobile-navbar-icon>
+<span></span>
+<span></span>
+<span></span>
+</div>
+</div>
+<nav id=mobile-menu class="mobile-menu slideout-menu">
+<ul class=mobile-menu-list>
+<a href=/>
+<li class=mobile-menu-item>Home</li>
+</a><a href=/post/>
+<li class=mobile-menu-item>Archives</li>
+</a><a href=/tags/>
+<li class=mobile-menu-item>Tags</li>
+</a><a href=/categories/>
+<li class=mobile-menu-item>Categories</li>
+</a>
+</ul>
+</nav>
+<div class=container id=mobile-panel>
+<header id=header class=header>
+<div class=logo-wrapper>
+<a href=/ class=logo>eBPF Pearls</a>
+</div>
+<nav class=site-navbar>
+<ul id=menu class=menu>
+<li class=menu-item>
+<a class=menu-item-link href=/>Home</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/post/>Archives</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/tags/>Tags</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/categories/>Categories</a>
+</li>
+</ul>
+</nav>
+</header>
+<main id=main class=main>
+<div class=content-wrapper>
+<div id=content class=content>
+<article class=post>
+<header class=post-header>
+<h1 class=post-title>BTFGen: One Step Closer to Truly Portable eBPF Programs</h1>
+<div class=post-meta>
+<span class=post-time> 2022-04-02 </span>
+<div class=post-category>
+<a href=/categories/ebpf/> ebpf </a>
+<a href=/categories/core/> core </a>
+<a href=/categories/2022/> 2022 </a>
+</div>
+<span class=more-meta> 3263 words </span>
+<span class=more-meta> 16 mins read </span>
+</div>
+</header>
+<div class=post-toc id=post-toc>
+<h2 class=post-toc-title>Contents</h2>
+<div class=post-toc-content>
+<nav id=TableOfContents>
+<ul>
+<li><a href=#the-problem>The problem</a></li>
+<li><a href=#co-re-compile-once--run-everywhere>CO-RE (Compile Once – Run Everywhere)</a></li>
+<li><a href=#btfhub>BTFHub</a></li>
+<li><a href=#btfgen>BTFGen</a>
+<ul>
+<li><a href=#internal-details>Internal Details</a></li>
+<li><a href=#how-to-use>How to Use?</a>
+<ul>
+<li><a href=#installing-bpftool>Installing bpftool</a></li>
+<li><a href=#get-btf-files-for-different-kernels-from-bfthub>Get BTF files for different kernels from BFThub</a></li>
+<li><a href=#download-modify-and-compile-bcc-libbpf-tools>Download, modify and compile BCC libbpf tools</a></li>
+<li><a href=#generate-reduced-btf>Generate “reduced” BTF</a></li>
+<li><a href=#try-it-out>Try it out</a></li>
+</ul>
+</li>
+<li><a href=#example-of-integrations>Example of integrations</a>
+<ul>
+<li><a href=#inspektor-gadget>Inspektor Gadget</a></li>
+<li><a href=#tracee>Tracee</a></li>
+</ul>
+</li>
+<li><a href=#limitations>Limitations</a></li>
+<li><a href=#future-ahead--next-steps>Future Ahead / Next Steps</a>
+<ul>
+<li><a href=#integration-with-other-projects>Integration with other projects</a></li>
+<li><a href=#deduplication-of-generated-files>Deduplication of generated files</a></li>
+<li><a href=#online-api>Online API</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href=#more-information>More Information</a></li>
+<li><a href=#thanks>Thanks</a></li>
+</ul>
+</nav>
+</div>
+</div>
+<div class=post-content>
+<p>Addr：<a href=https://ebpf.xyz/post/btfgen-one-step-closer-to-truly-portable-ebpf-programs>https://ebpf.xyz/post/btfgen-one-step-closer-to-truly-portable-ebpf-programs</a></p>
+<p>By Mauricio Vásquez Bernal · March 16, 2022</p>
+<p><img src=imgs/btfgen-banner_hu1e10c462e5c1196f11d615ca73ff84f3_317557_900x0_resize_q100_h2_box.png alt="article image"></p>
+<p>eBPF is a widely known technology used in the observability, networking and security landscapes. The Linux operating system provides a virtual machine that can run eBPF programs in a secure and efficient way. Those programs are attached to different hooks exposed by the operating system to be able to filter and extract the information of interest when a given event happens in the kernel.</p>
+<p>In this blog post, we’ll present BTFGen, a tool that helps to make eBPF programs portable, and how it can be integrated in your project. We’ll explain the challenges of running eBPF programs on different target machines, how this has been traditionally solved by compiling them before loading, the problems it presents and how different mechanisms and tools like CO-RE (Compile Once – Run Everywhere) and BTFHub try to solve them.</p>
+<h1 id=the-problem>The problem</h1>
+<p>eBPF programs access the kernel structures to gather the data they need; hence they are dependent on the layout of such structures and a program compiled for a given kernel version usually doesn’t work on another one because the layout of their structures changes: a field is added, removed, its type changed. Even a change to the kernel configuration would change the whole structure layout. For instance, disabling <code>CONFIG_THREAD_INFO_IN_TASK </code>changes the offsets of all members of <a href=https://github.com/torvalds/linux/blob/v5.16/include/linux/sched.h#L723>task_struct</a> :</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-C data-lang=C><span class=k>struct</span> <span class=n>task_struct</span> <span class=p>{</span>
+<span class=cp>#ifdef CONFIG_THREAD_INFO_IN_TASK
+</span><span class=cp></span>	<span class=cm>/*
+</span><span class=cm>	 * For reasons of header soup (see current_thread_info()), this
+</span><span class=cm>	 * must be the first element of task_struct.
+</span><span class=cm>	 */</span>
+	<span class=k>struct</span> <span class=n>thread_info</span>		<span class=n>thread_info</span><span class=p>;</span>
+<span class=cp>#endif
+</span><span class=cp></span>	<span class=kt>unsigned</span> <span class=kt>int</span>			<span class=n>__state</span><span class=p>;</span>
+
+<span class=cp>#ifdef CONFIG_PREEMPT_RT
+</span><span class=cp></span>	<span class=cm>/* saved state for &#34;spinlock sleepers&#34; */</span>
+	<span class=kt>unsigned</span> <span class=kt>int</span>			<span class=n>saved_state</span><span class=p>;</span>
+<span class=cp>#endif
+</span><span class=cp></span><span class=p>...</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>This problem has usually been overcome by using the kernel headers of the target machine to compile the programs before loading them. This is the approach used by BPF Compiler Collection ( <a href=https://github.com/iovisor/bcc/>BCC</a> ).</p>
+<p>This approach has multiple drawbacks: (1) a heavy compiler chain must be shipped to the target machine to compile the program, (2) compiling the programs requires some resources and could affect the workload scheduling in some scenarios, (3) compiling takes a considerable amount of time and hence the first events arrive with some delay and (4) the kernel headers need to be available on the target machine.</p>
+<h1 id=co-re-compile-once--run-everywhere>CO-RE (Compile Once – Run Everywhere)</h1>
+<p>The CO-RE mechanism presents a solution to these problems. In this case, the eBPF program is compiled once, then it’s patched at runtime to update its instructions according to the layout of the kernel structures of machine where the program is going to run in. The <a href=https://nakryiko.com/posts/bpf-portability-and-co-re>BPF CO-RE (Compile Once – Run Everywhere)</a> blog post presents all the details and components behind this technology. What is important to understand for the scope of this blog post is that CO-RE requires to have the BTF (BPF Type Format) information of the target kernel. This is provided by the kernel itself when it’s compiled with <code>CONFIG_DEBUG_INFO_BTF=y</code>. This option was <a href=https://github.com/torvalds/linux/commit/e83b9f55448afce3fe1abcd1d10db9584f8042a6>introduced in Linux 5.2</a> and many popular distributions only enabled it some versions after that. This means that there are a lot of users running kernels that don’t expose BTF information and hence it’s not possible to use CO-RE in those cases.</p>
+<h1 id=btfhub>BTFHub</h1>
+<p><a href=https://github.com/aquasecurity/btfhub>BTFHub</a> is a project from the Aqua Security folks that provides BTF information for the released kernels of the most popular distributions that don’t expose BTF information. The BTF file for the target kernel can be downloaded at runtime and then fed to the loader library (libbpf, cilium/ebpf or others), that will use it to patch the program accordingly.</p>
+<p>Even if BTFHub is a great improvement, it still presents some challenges: each BTF file is a few MBs big, hence it’s not possible to ship the BTF files for all the kernels together with the application as it’ll require some GBs of space. The alternative is to download the BTF for the current kernel at runtime, which also presents some problems: it delays the starting of the eBPF program and in some scenarios it’s not possible to reach an external host to download such a file.</p>
+<h1 id=btfgen>BTFGen</h1>
+<p>It’s not needed to provide the full BTF file describing all the kernel types to perform the program patching as an eBPF program usually accesses only a few of them. A “reduced” BTF with only the information about the types used will suffice. This is where BTFGen comes into play: it’s a tool that generates a reduced BTF file with only the types that are needed by a set of eBPF programs. The generated BTF files are very small (few KBs) and hence it’s possible to ship them together with the application.</p>
+<p>BTFGen is not designed to be used alone. It needs the source BTF files with all the kernel types for different Linux distributions (provided by BTFHub) and the CO-RE mechanism (in libbpf, the Linux kernel or another loader library) is still used to patch the program when loading it.</p>
+<p>The workflow of BTFGen is the following:</p>
+<ol>
+<li>Developers write their eBPF programs <a href=https://nakryiko.com/posts/bpf-core-reference-guide/>using CO-RE</a> and compile them with llvm/clang to generate the object files</li>
+<li>The source BTF files for different distributions are gathered from BTFHub or another source</li>
+<li>BTFGen is used to generate a reduced version of the BTF files</li>
+<li>The reduced BTF files are distributed with the application</li>
+</ol>
+<p><img src=imgs/btfgen-workflow.png alt="Image showing the BTFGen workflow as described above."></p>
+<h2 id=internal-details>Internal Details</h2>
+<p>BTFGen is implemented in bpftool and it uses the libbpf CO-RE logic to solve relocations. With this information it’s able to pick the types involved in a relocation to generate the “reduced” BTF file. The goal of this post is not to explain all the internal implementation details. If you want to know more, you can check <a href=https://github.com/aquasecurity/btfhub/blob/main/docs/btfgen-internals.md>this</a> documentation on the BTFHub repository or the <a href=https://lore.kernel.org/bpf/164503621150.2935.6634904664671748900.git-patchwork-notify@kernel.org/T/#mdd100ccbc95947c8fe6be74db66002e273a29abd>patch</a> where it was implemented.</p>
+<h2 id=how-to-use>How to Use?</h2>
+<p>This section provides more details about the usage of this utility. In this example we’ll use BTFGen to enable running some of the <a href=https://github.com/iovisor/bcc/tree/v0.24.0/libbpf-tools>BCC libbpf-tools</a> on machines without <code>CONFIG_DEBUG_INFO_BTF</code> enabled. A very similar approach can be used to integrate with other eBPF applications.</p>
+<p>In this demonstration we will go through the following steps:</p>
+<ol>
+<li>Download, compile and install a version of bpftool with BTFGen support</li>
+<li>Download BTF files from BTFHub</li>
+<li>Download and compile BCC tools</li>
+<li>Use BTFGen to generate “reduced” BTF files for some BCC tools</li>
+<li>Modify those tools to load the BTF information from a custom path</li>
+<li>Try it out</li>
+</ol>
+<p>As a first step, let’s create an empty folder for this demonstration:</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-bash data-lang=bash>$ mkdir /tmp/btfgendemo
+</code></pre></td></tr></table>
+</div>
+</div><h3 id=installing-bpftool>Installing bpftool</h3>
+<p>BTFGen was just merged into bpftool. Until it’s included in the packages of the different distributions, we need to compile it from source.</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-bash data-lang=bash>$ <span class=nb>cd</span> /tmp/btfgendemo
+$ git clone --recurse-submodules https://github.com/libbpf/bpftool.git
+$ <span class=nb>cd</span> bpftool/src
+$ make
+$ sudo make install
+</code></pre></td></tr></table>
+</div>
+</div><h3 id=get-btf-files-for-different-kernels-from-bfthub>Get BTF files for different kernels from BFThub</h3>
+<p>In this case we use BTFHub and we only consider Ubuntu Focal for brevity but exactly the same approach is used to generate files for other distributions supported by BTFHub.</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-bash data-lang=bash>$ <span class=nb>cd</span> /tmp/btfgendemo
+$ git clone https://github.com/aquasecurity/btfhub-archive
+$ <span class=nb>cd</span> btfhub-archive/ubuntu/focal/x86_64/
+$ <span class=k>for</span> f in *.tar.xz<span class=p>;</span> <span class=k>do</span> tar -xf <span class=s2>&#34;</span><span class=nv>$f</span><span class=s2>&#34;</span><span class=p>;</span> <span class=k>done</span>
+$ ls -lhn *.btf <span class=p>|</span> head
+-rw-r----- <span class=m>1</span> <span class=m>1000</span> <span class=m>1000</span> 4,5M Sep <span class=m>29</span> 13:36 5.11.0-1007-azure.btf
+-rw-r----- <span class=m>1</span> <span class=m>1000</span> <span class=m>1000</span> 4,8M Aug <span class=m>10</span> 23:33 5.11.0-1009-aws.btf
+-rw-r----- <span class=m>1</span> <span class=m>1000</span> <span class=m>1000</span> 4,8M Jan <span class=m>22</span> 12:29 5.11.0-1009-gcp.btf
+-rw-r----- <span class=m>1</span> <span class=m>1000</span> <span class=m>1000</span> 4,5M Sep <span class=m>29</span> 13:38 5.11.0-1012-azure.btf
+-rw-r----- <span class=m>1</span> <span class=m>1000</span> <span class=m>1000</span> 4,5M Sep <span class=m>29</span> 13:40 5.11.0-1013-azure.btf
+-rw-r----- <span class=m>1</span> <span class=m>1000</span> <span class=m>1000</span> 4,8M Aug <span class=m>10</span> 23:39 5.11.0-1014-aws.btf
+-rw-r----- <span class=m>1</span> <span class=m>1000</span> <span class=m>1000</span> 4,8M Jan <span class=m>22</span> 12:32 5.11.0-1014-gcp.btf
+-rw-r----- <span class=m>1</span> <span class=m>1000</span> <span class=m>1000</span> 4,5M Sep <span class=m>29</span> 13:43 5.11.0-1015-azure.btf
+-rw-r----- <span class=m>1</span> <span class=m>1000</span> <span class=m>1000</span> 4,8M Sep <span class=m>7</span> 22:52 5.11.0-1016-aws.btf
+-rw-r----- <span class=m>1</span> <span class=m>1000</span> <span class=m>1000</span> 4,8M Sep <span class=m>7</span> 22:57 5.11.0-1017-aws.btf
+</code></pre></td></tr></table>
+</div>
+</div><p>As you can see, the size of the BTF file for each kernel is around 4 MB.</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-bash data-lang=bash>$ find . -name <span class=s2>&#34;*.btf&#34;</span> <span class=p>|</span> xargs du -ch <span class=p>|</span> tail -n <span class=m>1</span>
+944M	total
+</code></pre></td></tr></table>
+</div>
+</div><p>And the total size of the files, only for Ubuntu Focal, is ~944MB, which makes it infeasible to ship them together with the application.</p>
+<h3 id=download-modify-and-compile-bcc-libbpf-tools>Download, modify and compile BCC libbpf tools</h3>
+<p>Let’s clone the BCC repository at the v0.24.0 tag.</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-bash data-lang=bash>$ <span class=nb>cd</span> /tmp/btfgendemo
+$ git clone https://github.com/iovisor/bcc -b v0.24.0 --recursive
+</code></pre></td></tr></table>
+</div>
+</div><p>By default, the different BCC tools try to load BTF information from a <a href=https://github.com/libbpf/libbpf/blob/22411acc4b2c846868fd570b2d9f3b016d2af2cb/src/btf.c#L4631-L4639>well-known</a> list of directories. We shouldn’t overwrite those files in our system, as they might be needed by other tools. Instead, we can modify some of the BCC tools to load the BTF information from a custom path. We can use <code>LIBBPF_OPTS()</code> to declare a <code>bpf_object_open_opts</code> struct with the <code>btf_custom_path</code> field set to the path where the BTF resides and pass it to the <code>TOOL_bpf__open_opts()</code> function. You can apply the following patch to modify the opensnoop, execsnoop and bindsnoop tools.</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=c1># /tmp/btfgendemo/bcc.patch</span>
+diff --git a/libbpf-tools/bindsnoop.c b/libbpf-tools/bindsnoop.c
+index 5d87d484..a336747e <span class=m>100644</span>
+--- a/libbpf-tools/bindsnoop.c
++++ b/libbpf-tools/bindsnoop.c
+@@ -187,7 +187,8 @@ int main<span class=o>(</span>int argc, char **argv<span class=o>)</span>
+ 	libbpf_set_strict_mode<span class=o>(</span>LIBBPF_STRICT_ALL<span class=o>)</span><span class=p>;</span>
+ 	libbpf_set_print<span class=o>(</span>libbpf_print_fn<span class=o>)</span><span class=p>;</span>
+
+-	<span class=nv>obj</span> <span class=o>=</span> bindsnoop_bpf__open<span class=o>()</span><span class=p>;</span>
++	LIBBPF_OPTS<span class=o>(</span>bpf_object_open_opts, opts, .btf_custom_path <span class=o>=</span> <span class=s2>&#34;/tmp/vmlinux.btf&#34;</span><span class=o>)</span><span class=p>;</span>
++	<span class=nv>obj</span> <span class=o>=</span> bindsnoop_bpf__open_opts<span class=o>(</span><span class=p>&amp;</span>opts<span class=o>)</span><span class=p>;</span>
+ 	<span class=k>if</span> <span class=o>(</span>!obj<span class=o>)</span> <span class=o>{</span>
+ 		warn<span class=o>(</span><span class=s2>&#34;failed to open BPF object\n&#34;</span><span class=o>)</span><span class=p>;</span>
+ 		<span class=k>return</span> 1<span class=p>;</span>
+diff --git a/libbpf-tools/execsnoop.c b/libbpf-tools/execsnoop.c
+index 38294816..9bd0d077 <span class=m>100644</span>
+--- a/libbpf-tools/execsnoop.c
++++ b/libbpf-tools/execsnoop.c
+@@ -274,7 +274,8 @@ int main<span class=o>(</span>int argc, char **argv<span class=o>)</span>
+ 	libbpf_set_strict_mode<span class=o>(</span>LIBBPF_STRICT_ALL<span class=o>)</span><span class=p>;</span>
+ 	libbpf_set_print<span class=o>(</span>libbpf_print_fn<span class=o>)</span><span class=p>;</span>
+
+-	<span class=nv>obj</span> <span class=o>=</span> execsnoop_bpf__open<span class=o>()</span><span class=p>;</span>
++	LIBBPF_OPTS<span class=o>(</span>bpf_object_open_opts, opts, .btf_custom_path <span class=o>=</span> <span class=s2>&#34;/tmp/vmlinux.btf&#34;</span><span class=o>)</span><span class=p>;</span>
++	<span class=nv>obj</span> <span class=o>=</span> execsnoop_bpf__open_opts<span class=o>(</span><span class=p>&amp;</span>opts<span class=o>)</span><span class=p>;</span>
+ 	<span class=k>if</span> <span class=o>(</span>!obj<span class=o>)</span> <span class=o>{</span>
+ 		fprintf<span class=o>(</span>stderr, <span class=s2>&#34;failed to open BPF object\n&#34;</span><span class=o>)</span><span class=p>;</span>
+ 		<span class=k>return</span> 1<span class=p>;</span>
+diff --git a/libbpf-tools/opensnoop.c b/libbpf-tools/opensnoop.c
+index 557a63cd..cf2c5db6 <span class=m>100644</span>
+--- a/libbpf-tools/opensnoop.c
++++ b/libbpf-tools/opensnoop.c
+@@ -231,7 +231,8 @@ int main<span class=o>(</span>int argc, char **argv<span class=o>)</span>
+ 	libbpf_set_strict_mode<span class=o>(</span>LIBBPF_STRICT_ALL<span class=o>)</span><span class=p>;</span>
+ 	libbpf_set_print<span class=o>(</span>libbpf_print_fn<span class=o>)</span><span class=p>;</span>
+
+-	<span class=nv>obj</span> <span class=o>=</span> opensnoop_bpf__open<span class=o>()</span><span class=p>;</span>
++	LIBBPF_OPTS<span class=o>(</span>bpf_object_open_opts, opts, .btf_custom_path <span class=o>=</span> <span class=s2>&#34;/tmp/vmlinux.btf&#34;</span><span class=o>)</span><span class=p>;</span>
++	<span class=nv>obj</span> <span class=o>=</span> opensnoop_bpf__open_opts<span class=o>(</span><span class=p>&amp;</span>opts<span class=o>)</span><span class=p>;</span>
+ 	<span class=k>if</span> <span class=o>(</span>!obj<span class=o>)</span> <span class=o>{</span>
+ 		fprintf<span class=o>(</span>stderr, <span class=s2>&#34;failed to open BPF object\n&#34;</span><span class=o>)</span><span class=p>;</span>
+ 		<span class=k>return</span> 1<span class=p>;</span>
+$ <span class=nb>cd</span> bcc
+$ git apply /tmp/btfgendemo/bcc.patch
+$ <span class=nb>cd</span> libbpf-tools/
+$ make -j<span class=k>$(</span>nproc<span class=k>)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id=generate-reduced-btf>Generate “reduced” BTF</h3>
+<p>In this step, we’ll use the <code>bpftool gen min_core_btf</code> command to generate the reduced BTF files for the bindsnoop, execsnoop and opensnoop BCC tools. The following command invokes bpftool for each BTF file present in the directory.</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-bash data-lang=bash>$ <span class=nv>OBJ1</span><span class=o>=</span>/tmp/btfgendemo/bcc/libbpf-tools/.output/bindsnoop.bpf.o
+$ <span class=nv>OBJ2</span><span class=o>=</span>/tmp/btfgendemo/bcc/libbpf-tools/.output/execsnoop.bpf.o
+$ <span class=nv>OBJ3</span><span class=o>=</span>/tmp/btfgendemo/bcc/libbpf-tools/.output/opensnoop.bpf.o
+
+$ mkdir -p /tmp/btfgendemo/btfs
+$ <span class=nb>cd</span> /tmp/btfgendemo/btfhub-archive/ubuntu/focal/x86_64/
+
+$ <span class=k>for</span> f in *.btf<span class=p>;</span> <span class=k>do</span> bpftool gen min_core_btf <span class=s2>&#34;</span><span class=nv>$f</span><span class=s2>&#34;</span> <span class=se>\
+</span><span class=se></span>  /tmp/btfgendemo/btfs/<span class=k>$(</span>basename <span class=s2>&#34;</span><span class=nv>$f</span><span class=s2>&#34;</span><span class=k>)</span> <span class=nv>$OBJ1</span> <span class=nv>$OBJ2</span> <span class=nv>$OBJ3</span><span class=p>;</span> <span class=se>\
+</span><span class=se></span><span class=k>done</span>
+
+$ ls -lhn /tmp/btfgendemo/btfs <span class=p>|</span> head
+total 864K
+-rw-r--r-- <span class=m>1</span> <span class=m>1000</span> <span class=m>1000</span> 1,1K Feb <span class=m>8</span> 14:46 5.11.0-1007-azure.btf
+-rw-r--r-- <span class=m>1</span> <span class=m>1000</span> <span class=m>1000</span> 1,1K Feb <span class=m>8</span> 14:46 5.11.0-1009-aws.btf
+-rw-r--r-- <span class=m>1</span> <span class=m>1000</span> <span class=m>1000</span> 1,1K Feb <span class=m>8</span> 14:46 5.11.0-1009-gcp.btf
+-rw-r--r-- <span class=m>1</span> <span class=m>1000</span> <span class=m>1000</span> 1,1K Feb <span class=m>8</span> 14:46 5.11.0-1012-azure.btf
+-rw-r--r-- <span class=m>1</span> <span class=m>1000</span> <span class=m>1000</span> 1,1K Feb <span class=m>8</span> 14:46 5.11.0-1013-azure.btf
+-rw-r--r-- <span class=m>1</span> <span class=m>1000</span> <span class=m>1000</span> 1,1K Feb <span class=m>8</span> 14:46 5.11.0-1014-aws.btf
+-rw-r--r-- <span class=m>1</span> <span class=m>1000</span> <span class=m>1000</span> 1,1K Feb <span class=m>8</span> 14:46 5.11.0-1014-gcp.btf
+-rw-r--r-- <span class=m>1</span> <span class=m>1000</span> <span class=m>1000</span> 1,1K Feb <span class=m>8</span> 14:46 5.11.0-1015-azure.btf
+-rw-r--r-- <span class=m>1</span> <span class=m>1000</span> <span class=m>1000</span> 1,1K Feb <span class=m>8</span> 14:46 5.11.0-1016-aws.btf
+</code></pre></td></tr></table>
+</div>
+</div><p>Each generated BTF file is around 1.1KB and the size of all generated files for Ubuntu Focal is 864KB, which makes it possible to ship them together with the applications.</p>
+<p>We can even optimize it more if we compress the generated files:</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-bash data-lang=bash>$ <span class=nb>cd</span> /tmp/btfgendemo/btfs
+$ tar cvfJ compressed.tar.xz *.btf
+$ ls -lhn compressed.tar.xz
+-rw-r--r-- <span class=m>1</span> <span class=m>1000</span> <span class=m>1000</span> 2,5K Feb <span class=m>17</span> 15:19 compressed.tar.xz
+</code></pre></td></tr></table>
+</div>
+</div><p>The compression rate is so high because many of the generated files are identical, we will discuss it in further detail below.</p>
+<h3 id=try-it-out>Try it out</h3>
+<p>In order to try it out we need to run a machine with Ubuntu Focal. The following Vagrantfile can be used to create a VM with it. Please note that Ubuntu Focal has enabled BTF support starting from kernel version 5.4.0-92-generic, so we need to run a previous version to make sure this example makes sense. We use the <code>202012.21.0</code> version of the <code>bento/ubuntu-20.04</code> Vagrant box that has kernel 5.4.0-58-generic.</p>
+<p>This uses <code>sshfs</code> to share files between the host and the VM, be sure that you have the <code>vagrant-sshfs</code> plugin installed.</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=c1># /tmp/btfgendemo/Vagrantfile</span>
+Vagrant.configure<span class=o>(</span><span class=s2>&#34;2&#34;</span><span class=o>)</span> <span class=k>do</span> <span class=p>|</span> config <span class=p>|</span>
+  config.vm.box <span class=o>=</span> <span class=s2>&#34;bento/ubuntu-20.04&#34;</span>
+  config.vm.box_version <span class=o>=</span> <span class=s2>&#34;= 202012.21.0&#34;</span>
+  config.vm.synced_folder <span class=s2>&#34;/tmp/btfgendemo&#34;</span>, <span class=s2>&#34;/btfgendemo&#34;</span>, type: <span class=s2>&#34;sshfs&#34;</span>
+
+  config.vm.provider <span class=s2>&#34;virtualbox&#34;</span> <span class=k>do</span> <span class=p>|</span> vb <span class=p>|</span>
+    vb.gui <span class=o>=</span> <span class=nb>false</span>
+    vb.cpus <span class=o>=</span> <span class=m>4</span>
+    vb.memory <span class=o>=</span> <span class=s2>&#34;4096&#34;</span>
+  end
+end
+</code></pre></td></tr></table>
+</div>
+</div><p>Bring the VM up and SSH into it:</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-bash data-lang=bash>$ vagrant up
+$ vagrant ssh
+</code></pre></td></tr></table>
+</div>
+</div><p>The following commands must be executed inside the VM.</p>
+<p>Check the kernel version:</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-bash data-lang=bash>$ uname -a
+Linux vagrant 5.4.0-58-generic <span class=c1>#64-Ubuntu SMP Wed Dec 9 08:16:25 UTC 2020 x86_64 x86_64 x86_64 GNU/Linux</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Let’s check that the kernel doesn’t have <code>CONFIG_DEBUG_INFO_BTF</code> enabled.</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-bash data-lang=bash>$ cat /boot/config-<span class=k>$(</span>uname -r<span class=k>)</span> <span class=p>|</span> grep CONFIG_DEBUG_INFO_BTF
+CONFIG_DEBUG_INFO_BTF is not <span class=nb>set</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Let’s try to run some of the tools before copying the BTF file to the correct path.</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-bash data-lang=bash>$ sudo /btfgendemo/bcc/libbpf-tools/execsnoop
+libbpf: failed to parse target BTF: -2
+libbpf: failed to perform CO-RE relocations: -2
+libbpf: failed to load object <span class=s1>&#39;execsnoop_bpf&#39;</span>
+libbpf: failed to load BPF skeleton <span class=s1>&#39;execsnoop_bpf&#39;</span>: -2
+failed to load BPF object: -2
+</code></pre></td></tr></table>
+</div>
+</div><p>As expected, the tool is failing because it’s not able to find the BTF information required to perform the CO-RE relocations.</p>
+<p>Let’s copy the the BTF file corresponding to this kernel version.</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-bash data-lang=bash>$ cp /btfgendemo/btfs/<span class=k>$(</span>uname -r<span class=k>)</span>.btf /tmp/vmlinux.btf
+</code></pre></td></tr></table>
+</div>
+</div><p>After this, the tools work fine:</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-bash data-lang=bash>$ sudo /btfgendemo/bcc/libbpf-tools/execsnoop
+PCOMM PID PPID RET ARGS
+^C
+
+$ sudo /btfgendemo/bcc/libbpf-tools/bindsnoop
+PID COMM RET PROTO OPTS IF PORT ADDR
+^C
+
+$ sudo /btfgendemo/bcc/libbpf-tools/opensnoop
+PID COMM FD ERR PATH
+^C
+</code></pre></td></tr></table>
+</div>
+</div><p>Of course this is just an example showing the general workflow of the tool. A real integration should take care of automatically providing the right BTF file based on the kernel version of the host. The following section shows two different examples of this integration.</p>
+<h2 id=example-of-integrations>Example of integrations</h2>
+<p>In this section we’ll cover how BTFGen is being used by the Inspektor Gadget and Tracee projects.</p>
+<h3 id=inspektor-gadget>Inspektor Gadget</h3>
+<p><a href=https://github.com/kinvolk/inspektor-gadget>Inspektor Gadget</a> is a collection of tools to debug and inspect Kubernetes resources and applications. Since it’s distributed as a container image, we chose to ship the BTF files for the different Linux distributions within it. We added a <a href=https://github.com/kinvolk/inspektor-gadget/blob/v0.4.2/gadget.Dockerfile#L42-L46>step</a> to the Dockerfile to generate the BTF files when building the container image:</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-bash data-lang=bash>RUN <span class=nb>set</span> -ex<span class=p>;</span> <span class=se>\
+</span><span class=se></span>	<span class=k>if</span> <span class=o>[</span> <span class=s2>&#34;</span><span class=nv>$ENABLE_BTFGEN</span><span class=s2>&#34;</span> <span class=o>=</span> <span class=nb>true</span> <span class=o>]</span><span class=p>;</span> <span class=k>then</span> <span class=se>\
+</span><span class=se></span>		<span class=nb>cd</span> /btf-tools <span class=o>&amp;&amp;</span> <span class=se>\
+</span><span class=se></span>		<span class=nv>LIBBPFTOOLS</span><span class=o>=</span>/objs <span class=nv>BTFHUB</span><span class=o>=</span>/tmp/btfhub <span class=nv>INSPEKTOR_GADGET</span><span class=o>=</span>/gadget ./btfgen.sh<span class=p>;</span> <span class=se>\
+</span><span class=se></span>	<span class=k>fi</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><a href=https://github.com/kinvolk/inspektor-gadget/blob/v0.4.2/tools/btfgen.sh>btfgen.sh</a> is a helper script that invokes bpftool generating BTF files for all kernels supported by BTFHub.</p>
+<p>Then, we modified the <a href=https://github.com/kinvolk/inspektor-gadget/blob/v0.4.2/gadget-container/entrypoint.sh#L149-L154>entrypoint</a> script to install the right BTF file on the container filesystem, so the different gadgets have it available. Inspektor Gadget is designed to always run in a container, hence we can install the BTF file in a system path (<code>/boot/vmlinux-$(uname –r)</code>) without affecting the host. By doing so we also avoid modifying the source code of the different BCC tools (as we did in the example above):</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=nb>echo</span> <span class=s2>&#34;Kernel provided BTF is not available: Trying shipped BTF files&#34;</span>
+<span class=nv>SOURCE_BTF</span><span class=o>=</span>/btfs/<span class=nv>$ID</span>/<span class=nv>$VERSION_ID</span>/<span class=nv>$ARCH</span>/<span class=nv>$KERNEL</span>.btf
+<span class=k>if</span> <span class=o>[</span>-f <span class=nv>$SOURCE_BTF</span><span class=o>]</span><span class=p>;</span> <span class=k>then</span>
+        objcopy --input binary --output elf64-little --rename-section .data<span class=o>=</span>.BTF <span class=nv>$SOURCE_BTF</span> /boot/vmlinux-<span class=nv>$KERNEL</span>
+        <span class=nb>echo</span> <span class=s2>&#34;shipped BTF available. Installed at /boot/vmlinux-</span><span class=nv>$KERNEL</span><span class=s2>&#34;</span>
+<span class=k>else</span>
+...
+</code></pre></td></tr></table>
+</div>
+</div><p>The whole PR introducing this support was <a href=https://github.com/kinvolk/inspektor-gadget/pull/387>https://github.com/kinvolk/inspektor-gadget/pull/387</a> .</p>
+<h3 id=tracee>Tracee</h3>
+<p><a href=https://github.com/aquasecurity/tracee>Tracee</a> is a Runtime Security and forensics tool for Linux. In this case the generated BTF files are embedded within the application binary. The Makefile has a <a href=https://github.com/aquasecurity/tracee/blob/add1efa7934dcf46be67ea2be54ac0d139a94804/Makefile.one#L507>btfhub</a> target that invokes <a href=https://github.com/aquasecurity/tracee/blob/add1efa7934dcf46be67ea2be54ac0d139a94804/3rdparty/btfhub.sh#L1>btfhub.sh.</a> This script clones the BTFHub repository and <a href=https://github.com/aquasecurity/tracee/blob/add1efa7934dcf46be67ea2be54ac0d139a94804/3rdparty/btfhub.sh#L112>calls</a> btfgen.sh to generate the BTF files. Those files are moved to the <code>./dist/btfhub</code> folder.</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=c1># generate tailored BTFs</span>
+
+<span class=o>[</span> ! -f ./tools/btfgen.sh <span class=o>]</span> <span class=o>&amp;&amp;</span> die <span class=s2>&#34;could not find btfgen.sh&#34;</span>
+./tools/btfgen.sh -a <span class=si>${</span><span class=nv>ARCH</span><span class=si>}</span> -o <span class=nv>$TRACEE_BPF_CORE</span>
+
+<span class=c1># move tailored BTFs to dist</span>
+
+<span class=o>[</span> ! -d <span class=si>${</span><span class=nv>BASEDIR</span><span class=si>}</span>/dist <span class=o>]</span> <span class=o>&amp;&amp;</span> die <span class=s2>&#34;could not find dist directory&#34;</span>
+<span class=o>[</span> ! -d <span class=si>${</span><span class=nv>BASEDIR</span><span class=si>}</span>/dist/btfhub <span class=o>]</span> <span class=o>&amp;&amp;</span> mkdir <span class=si>${</span><span class=nv>BASEDIR</span><span class=si>}</span>/dist/btfhub
+
+rm -rf <span class=si>${</span><span class=nv>BASEDIR</span><span class=si>}</span>/dist/btfhub/*
+mv ./custom-archive/* <span class=si>${</span><span class=nv>BASEDIR</span><span class=si>}</span>/dist/btfhub
+</code></pre></td></tr></table>
+</div>
+</div><p>Then, they are embedded in the go binary using <a href=https://pkg.go.dev/embed><code>go:embed</code></a> <a href=https://github.com/aquasecurity/tracee/blob/add1efa7934dcf46be67ea2be54ac0d139a94804/embedded-ebpf.go#L11>here</a> .</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=c1>//go:build ebpf
+</span><span class=c1>// +build ebpf
+</span><span class=c1></span>
+<span class=kn>package</span> <span class=nx>tracee</span>
+
+<span class=kn>import</span> <span class=p>(</span>
+	<span class=s>&#34;embed&#34;</span>
+<span class=p>)</span>
+
+<span class=c1>//go:embed &#34;dist/tracee.bpf.core.o&#34;
+</span><span class=c1>//go:embed &#34;dist/btfhub/*&#34;
+</span><span class=c1></span>
+<span class=kd>var</span> <span class=nx>BPFBundleInjected</span> <span class=nx>embed</span><span class=p>.</span><span class=nx>FS</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>At runtime, the BTF file for the current kernel is <a href=https://github.com/aquasecurity/tracee/blob/add1efa7934dcf46be67ea2be54ac0d139a94804/cmd/tracee-ebpf/main.go#L367>unpacked</a> and its path <a href=https://github.com/aquasecurity/tracee/blob/add1efa7934dcf46be67ea2be54ac0d139a94804/cmd/tracee-ebpf/main.go#L373>passed</a> to libbpfgo to be used for the CO-RE relocations.</p>
+<h2 id=limitations>Limitations</h2>
+<p>The BTF support in the kernel is not only about exposing the BTF types. Some kind of eBPF programs like fentry/fexit and LSM hooks require the kernel to expose BTF information. Those programs won’t work with BTFGen and the only alternative is to have a kernel with <code>CONFIG_DEBUG_INFO_BTF</code> enabled.</p>
+<h2 id=future-ahead--next-steps>Future Ahead / Next Steps</h2>
+<p>We are aware that BTFGen is a temporary solution until most systems are updated to a kernel version that exposes BTF information. However, we think it’s going to take some years and, in the meanwhile, BTFGen can help to fill that gap.</p>
+<p>The following are some improvements / next steps that we could consider soon.</p>
+<h3 id=integration-with-other-projects>Integration with other projects</h3>
+<p>Some projects like BCC and its libbpf-based tools could benefit a lot from an integration with BTFGen. We opened a <a href=https://github.com/iovisor/bcc/pull/3889>PR</a> to make those tools available to a wider range of Linux distributions by using BTFGen.</p>
+<h3 id=deduplication-of-generated-files>Deduplication of generated files</h3>
+<p>eBPF programs usually access few kernel types, hence there is a high chance that the generated files for two different kernel versions are identical, this is especially true for different minor releases of kernels of the same Linux distribution. A further improvement to BTFGen would be to take advantage of this to avoid creating duplicated files by using a symbolic link or a similar approach.</p>
+<p>This could also be done directly on BTFHub where some source BTF files are duplicated like indicated in <a href=https://github.com/aquasecurity/btfhub/issues/17>this</a> issue, even if in this case the chance of having duplicated files is lower.</p>
+<h3 id=online-api>Online API</h3>
+<p>BTFHub is a big repository, and its size continues to increase because new kernels are released over time. The folks from Seekret created an <a href=https://github.com/seek-ret/btfhub-online>API</a> that uses BTFGen and BTFHub to generate on demand the “reduced” BTF files for eBPF objects provided by a user.</p>
+<h1 id=more-information>More Information</h1>
+<p>The following links are useful if you want to learn more about eBPF, BTF, CO-RE, BTFHub and BTFGen.</p>
+<ul>
+<li>
+<p><a href=https://nakryiko.com/posts/bpf-core-reference-guide/>BPF CO-RE reference guide:</a> Explains how to use CO-RE from a developer point of view.</p>
+</li>
+<li>
+<p><a href=https://nakryiko.com/posts/bpf-portability-and-co-re/>BPF CO-RE (Compile Once – Run Everywhere):</a> Explains CO-RE and the different components involved in this mechanism.</p>
+</li>
+<li>
+<p><a href=https://github.com/aquasecurity/btfhub/blob/main/docs/btfgen-internals.md>eBPF BTF GENERATOR: The road to truly portable CO-RE eBPF programs:</a> A deep dive into the BTFGen implementation.</p>
+</li>
+<li>
+<p><a href=https://www.kernel.org/doc/html/latest/bpf/btf.html>BPF Type Format (BTF):</a> Kernel documentation for BTF.</p>
+</li>
+</ul>
+<h1 id=thanks>Thanks</h1>
+<p>This feature took inspiration from already existing projects and was implemented as a joint effort by different companies. First, we’d like to thank the Aqua Security team for their amazing work on BTFHub, that’s the base project we took inspiration from. Secondly, we’d like to thank the different people that contributed during the development of this feature: Rafael David Tinoco from Aqua Security and Lorenzo Fontana and Leonardo Di Donato from Elastic. Finally, the maintainers of libbpf, Andrii Nakryiko and Alexei Starovoitov and of bpftool, Quentin Monnet, who provided a lot of valuable feedback and guidance to implement it.</p>
+<p>WRITTEN BY Mauricio Vásquez Bernal · March 16, 2022</p>
+</div>
+<div class=post-copyright>
+<p class=copyright-item>
+<span class=item-title>Author</span>
+<span class=item-content>Mauricio Vásquez Bernal</span>
+</p>
+<p class=copyright-item>
+<span class=item-title>LastMod</span>
+<span class=item-content>
+2022-04-02
+</span>
+</p>
+</div>
+<footer class=post-footer>
+<div class=post-tags>
+<a href=/tags/ebpf/>ebpf</a>
+<a href=/tags/beginner/>beginner</a>
+</div>
+<nav class=post-nav>
+<a class=next href=/post/an_introduction_and_practical_tips/>
+<span class="next-text nav-default">What is eBPF? | An Introduction and Practical Tips</span>
+<span class="next-text nav-mobile">Next</span>
+<i class="iconfont icon-right"></i>
+</a>
+</nav>
+</footer>
+</article>
+</div>
+<div id=disqus_thread></div>
+<script type=text/javascript>(function(){var a,b;if(window.location.hostname==='localhost')return;a=document.createElement('script'),a.type='text/javascript',a.async=!0,b='david',a.src='//'+b+'.disqus.com/embed.js',(document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(a)})()</script>
+<noscript>Please enable JavaScript to view the <a href=http://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript>
+</div>
+</main>
+<footer id=footer class=footer>
+<div class=social-links>
+<a href=https://github.com/awesome-ebpf class="iconfont icon-github" title=github></a>
+<a href=http://ebpf.xyz/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a>
+</div>
+<div class=copyright>
+<span class=power-by>
+Powered by <a class=hexo-link href=https://gohugo.io>Hugo</a>
+</span>
+<span class=division>|</span>
+<span class=theme-info>
+Theme -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a>
+</span>
+<span class=copyright-year>
+&copy;
+2017 -
+2022<span class=heart><i class="iconfont icon-heart"></i></span><span>Dave</span>
+</span>
+</div>
+</footer>
+<div class=back-to-top id=back-to-top>
+<i class="iconfont icon-up"></i>
+</div>
+</div>
+<script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script>
+<script type=text/javascript src=/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js></script>
+</body>
+</html>
